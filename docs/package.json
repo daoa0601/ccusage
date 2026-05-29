@@ -1,38 +1,28 @@
 {
 	"name": "@ccusage/docs",
-	"type": "module",
-	"version": "18.0.10",
+	"version": "20.0.6",
 	"private": true,
-	"description": "Documentation for ccusage",
-	"engines": {
-		"node": ">=20.19.4"
-	},
+	"description": "Documentation for coding (agent) CLI usage analysis with ccusage",
+	"type": "module",
 	"scripts": {
-		"build": "pnpm run docs:api && cp ../apps/ccusage/config-schema.json public/config-schema.json && vitepress build",
+		"build": "cp ../apps/ccusage/config-schema.json public/config-schema.json && vitepress build",
 		"deploy": "wrangler deploy",
-		"dev": "pnpm run docs:api && cp ../apps/ccusage/config-schema.json public/config-schema.json && vitepress dev",
-		"docs:api": "bun ./update-api-index.ts",
-		"format": "pnpm run lint --fix",
-		"lint": "eslint --cache .",
+		"dev": "cp ../apps/ccusage/config-schema.json public/config-schema.json && vitepress dev",
+		"format": "oxfmt --write .",
+		"lint": "oxlint .",
 		"preview": "vitepress preview",
 		"typecheck": "tsgo --noEmit"
 	},
 	"devDependencies": {
-		"@ryoppippi/eslint-config": "catalog:lint",
 		"@ryoppippi/vite-plugin-cloudflare-redirect": "catalog:docs",
 		"@types/bun": "catalog:types",
 		"@types/react": "catalog:types",
-		"@typescript/native-preview": "catalog:types",
-		"ccusage": "workspace:^",
-		"eslint": "catalog:lint",
-		"eslint-plugin-format": "catalog:lint",
-		"tinyglobby": "catalog:runtime",
-		"typedoc": "catalog:docs",
-		"typedoc-plugin-markdown": "catalog:docs",
-		"typedoc-vitepress-theme": "catalog:docs",
 		"vitepress": "catalog:docs",
 		"vitepress-plugin-group-icons": "catalog:docs",
 		"vitepress-plugin-llms": "catalog:docs",
 		"wrangler": "catalog:docs"
+	},
+	"engines": {
+		"node": ">=22.11.0"
 	}
 }

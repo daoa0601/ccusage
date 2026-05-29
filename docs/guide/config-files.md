@@ -23,7 +23,6 @@ Put frequently used options in `defaults`:
 	"$schema": "https://ccusage.com/config-schema.json",
 	"defaults": {
 		"timezone": "UTC",
-		"locale": "en-CA",
 		"breakdown": true
 	}
 }
@@ -104,7 +103,6 @@ Create a `ccusage.json` file with your preferred defaults:
 		"mode": "auto",
 		"offline": false,
 		"timezone": "Asia/Tokyo",
-		"locale": "ja-JP",
 		"breakdown": true
 	}
 }
@@ -132,14 +130,14 @@ You can also reference a local schema file after installing ccusage:
 
 ### Global Defaults
 
-The `defaults` section sets default values for all commands:
+The `defaults` section sets shared default values for unified reports and legacy Claude commands:
 
 ```json
 {
 	"$schema": "https://ccusage.com/config-schema.json",
 	"defaults": {
-		"since": "20250101",
-		"until": "20250630",
+		"since": "20260101",
+		"until": "20260531",
 		"json": false,
 		"mode": "auto",
 		"debug": false,
@@ -147,16 +145,14 @@ The `defaults` section sets default values for all commands:
 		"order": "asc",
 		"breakdown": false,
 		"offline": false,
-		"timezone": "UTC",
-		"locale": "en-CA",
-		"jq": ".data[]"
+		"timezone": "UTC"
 	}
 }
 ```
 
 ### Command-Specific Configuration
 
-Override defaults for specific commands using the `commands` section:
+Override shared defaults for specific unified reports and legacy Claude commands using the `commands` section:
 
 ```json
 {
@@ -178,6 +174,112 @@ Override defaults for specific commands using the `commands` section:
 }
 ```
 
+### Source-Specific Configuration
+
+Use data source namespaces to set defaults and report overrides. Supported namespaces are `claude`, `codex`, `opencode`, `amp`, `droid`, `codebuff`, `hermes`, `pi`, `goose`, `openclaw`, `kilo`, `kimi`, `qwen`, `copilot`, and `gemini`.
+
+```json
+{
+	"$schema": "https://ccusage.com/config-schema.json",
+	"defaults": {
+		"json": false,
+		"timezone": "UTC"
+	},
+	"codex": {
+		"defaults": {
+			"json": true,
+			"offline": true
+		},
+		"commands": {
+			"daily": {
+				"since": "20260101",
+				"until": "20260131"
+			}
+		}
+	},
+	"opencode": {
+		"commands": {
+			"weekly": {
+				"timezone": "Europe/London"
+			}
+		}
+	},
+	"droid": {
+		"defaults": {
+			"offline": true
+		}
+	},
+	"codebuff": {
+		"commands": {
+			"daily": {
+				"json": true
+			}
+		}
+	},
+	"pi": {
+		"defaults": {
+			"piPath": "/path/to/pi/sessions,/archive/pi/sessions"
+		}
+	},
+	"openclaw": {
+		"defaults": {
+			"openClawPath": "/path/to/openclaw,/archive/openclaw"
+		}
+	},
+	"kilo": {
+		"defaults": {
+			"offline": true
+		}
+	},
+	"kimi": {
+		"defaults": {
+			"offline": true
+		}
+	},
+	"qwen": {
+		"defaults": {
+			"offline": true
+		}
+	},
+	"copilot": {
+		"defaults": {
+			"offline": true
+		}
+	},
+	"gemini": {
+		"defaults": {
+			"offline": true
+		}
+	}
+}
+```
+
+This configuration affects source-focused commands such as:
+
+```bash
+ccusage codex daily
+ccusage opencode weekly
+ccusage droid daily
+ccusage codebuff daily
+ccusage pi daily
+ccusage openclaw daily
+ccusage kilo daily
+ccusage kimi daily
+ccusage qwen daily
+ccusage copilot monthly
+ccusage gemini daily
+```
+
+Source-specific settings are also applied when running unified reports such as `ccusage daily`. In that case, each source receives its own merged options before data is loaded.
+
+For a namespaced command, options are applied in this order:
+
+1. `defaults`
+2. `commands.<report>`
+3. `<source>.defaults`
+4. `<source>.commands.<report>`
+5. Command-line arguments
+
 ## Command-Specific Options
 
 ### Daily Command
@@ -189,8 +291,8 @@ Override defaults for specific commands using the `commands` section:
 			"instances": true,
 			"project": "my-project",
 			"breakdown": true,
-			"since": "20250101",
-			"until": "20250630"
+			"since": "20260101",
+			"until": "20260531"
 		}
 	}
 }
@@ -217,8 +319,7 @@ Override defaults for specific commands using the `commands` section:
 	"commands": {
 		"monthly": {
 			"breakdown": true,
-			"mode": "calculate",
-			"locale": "en-US"
+			"mode": "calculate"
 		}
 	}
 }
