@@ -80,6 +80,13 @@ ccusage monthly --breakdown
 ccusage blocks --live
 ```
 
+This fork also installs `ccstats` as an alias for the same CLI:
+
+```bash
+ccstats daily
+ccstats monthly --breakdown
+```
+
 ## Development Installation
 
 For development or contributing to ccusage:

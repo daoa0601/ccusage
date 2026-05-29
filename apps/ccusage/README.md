@@ -46,6 +46,8 @@ ccusage reads local usage data from coding agent CLIs and turns it into daily, w
 
 Use `ccusage daily`, `ccusage weekly`, `ccusage monthly`, or `ccusage session` to include every detected source in one report.
 
+This fork also publishes `ccstats` as a command alias for the same CLI. For example, `ccstats daily` is equivalent to `ccusage daily`.
+
 ## Installation
 
 ### Quick Start (Recommended)

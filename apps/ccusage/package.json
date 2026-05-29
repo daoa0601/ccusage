@@ -15,7 +15,8 @@
 	},
 	"funding": "https://github.com/ryoppippi/ccusage?sponsor=1",
 	"bin": {
-		"ccusage": "./src/cli.ts"
+		"ccusage": "./src/cli.ts",
+		"ccstats": "./src/cli.ts"
 	},
 	"files": [
 		"config-schema.json",
@@ -24,7 +25,8 @@
 	"type": "module",
 	"publishConfig": {
 		"bin": {
-			"ccusage": "./dist/cli.js"
+			"ccusage": "./dist/cli.js",
+			"ccstats": "./dist/cli.js"
 		}
 	},
 	"scripts": {

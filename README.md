@@ -11,6 +11,12 @@ The main command is:
 ccusage daily --tool all
 ```
 
+This fork also publishes the `ccstats` command alias, so the same report works as:
+
+```bash
+ccstats daily --tool all
+```
+
 Useful variants:
 
 ```bash
