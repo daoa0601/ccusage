@@ -88,20 +88,19 @@ def build_nix_binary [
         }
     }
     let flake_ref = $"($repo_root)#($attr)"
-    let result = (run-external nix build $flake_ref '--no-link' '--print-out-paths' '--print-build-logs' | complete)
+    let result = (^nix build $flake_ref '--no-link' '--print-out-paths' '--print-build-logs' | complete)
     if $result.exit_code != 0 {
         error make {
             msg: $"nix build ($flake_ref) failed\n($result.stderr)"
         }
     }
-    let out_path = (
-        $result.stdout | lines | where {|line| $line | is-not-empty } | last
-    )
-    if $out_path == null {
+    let out_lines = ($result.stdout | lines | where {|line| $line | is-not-empty })
+    if ($out_lines | is-empty) {
         error make {
             msg: $"nix build ($flake_ref) did not print an output path"
         }
     }
+    let out_path = ($out_lines | last)
     $out_path | path join bin $binary_name
 }
 def build_cargo_binary [repo_root: path, binary_name: string] {
