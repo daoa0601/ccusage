@@ -1,0 +1,8 @@
+{
+	"name": "publint-nix",
+	"version": "0.0.0",
+	"private": true,
+	"devDependencies": {
+		"publint": "0.3.12"
+	}
+}

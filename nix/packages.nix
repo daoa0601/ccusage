@@ -33,7 +33,7 @@ in
       models-dev-pricing = pkgs.callPackage ../nix/models-dev-pricing.nix {
         modelsDevSrc = inputs.models-dev;
       };
-      publint = pkgs.callPackage ../nix/publint.nix { };
+      publint = pkgs.callPackage ../nix/publint/package.nix { };
     in
     {
       apps = {
