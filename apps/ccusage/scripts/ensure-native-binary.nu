@@ -103,9 +103,9 @@ def build_nix_binary [
     let out_path = ($out_lines | last)
     $out_path | path join bin $binary_name
 }
-def build_cargo_binary [repo_root: path, binary_name: string] {
+def build_cargo_binary [repo_root: path, executable_name: string] {
     ^cargo build --manifest-path ($repo_root | path join rust Cargo.toml) --release --bin ccusage
-    $repo_root | path join rust target release $binary_name
+    $repo_root | path join rust target release $executable_name
 }
 def expected_version [repo_root: path] {
     let package_json = (open ($repo_root | path join apps ccusage package.json))
