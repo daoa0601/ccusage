@@ -23,11 +23,7 @@ def main [] {
         }
         exit 0
     }
-    let built_binary = if ($target_platform == 'linux') or ($target_platform == 'darwin') {
-        build_nix_binary $repo_root $target_platform $target_arch $binary_name
-    } else {
-        build_cargo_binary $repo_root $binary_name
-    }
+    let built_binary = (build_nix_binary $repo_root $target_platform $target_arch $binary_name)
     if not (has_expected_version $built_binary $version) {
         error make {
             msg: $"($built_binary) did not report version ($version) after native build"
@@ -102,10 +98,6 @@ def build_nix_binary [
     }
     let out_path = ($out_lines | last)
     $out_path | path join bin $binary_name
-}
-def build_cargo_binary [repo_root: path, executable_name: string] {
-    ^cargo build --manifest-path ($repo_root | path join rust Cargo.toml) --release --bin ccusage
-    $repo_root | path join rust target release $executable_name
 }
 def expected_version [repo_root: path] {
     let package_json = (open ($repo_root | path join apps ccusage package.json))
