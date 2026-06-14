@@ -34,6 +34,8 @@ in
         modelsDevSrc = inputs.models-dev;
       };
       publint = pkgs.callPackage ../nix/publint/package.nix { };
+      bumpp = pkgs.callPackage ../nix/bumpp/package.nix { };
+      changelogithub = pkgs.callPackage ../nix/changelogithub/package.nix { };
     in
     {
       apps = {
@@ -45,11 +47,29 @@ in
           type = "app";
           program = ccusageProgram;
         };
+        update-publint = {
+          type = "app";
+          program = publint.updateProgram;
+        };
+        update-bumpp = {
+          type = "app";
+          program = bumpp.updateProgram;
+        };
+        update-changelogithub = {
+          type = "app";
+          program = changelogithub.updateProgram;
+        };
       };
 
       packages = {
         default = ccusage;
-        inherit ccusage models-dev-pricing publint;
+        inherit
+          ccusage
+          models-dev-pricing
+          publint
+          bumpp
+          changelogithub
+          ;
       };
     };
 }

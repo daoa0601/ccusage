@@ -69,6 +69,12 @@ update-models-dev-pricing:
     just gen-models-dev-pricing
     just check
 
+# Update the Nix-packaged npm release tools (version, lockfile, FOD hash)
+update-pnpm-tools:
+    nix run .#update-publint
+    nix run .#update-bumpp
+    nix run .#update-changelogithub
+
 # Bump every package version (Rust included via bump.config.ts), then commit, tag, push
 release: ccusage::typecheck ccusage::build
     pnpm bumpp -r

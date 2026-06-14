@@ -1,0 +1,8 @@
+{
+	"name": "bumpp-nix",
+	"version": "0.0.0",
+	"private": true,
+	"devDependencies": {
+		"bumpp": "11.1.0"
+	}
+}

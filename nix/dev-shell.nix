@@ -24,6 +24,8 @@ in
             pnpm
             nushell
             config.packages.publint
+            config.packages.bumpp
+            config.packages.changelogithub
 
             rustToolchain
             cargo-edit
