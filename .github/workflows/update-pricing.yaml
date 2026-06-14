@@ -139,3 +139,65 @@ jobs:
           else
             printf '%s\n' "$body" | gh pr create --base main --head "$branch" --title "chore(pricing): update models.dev snapshot" --body-file -
           fi
+
+  update-publint:
+    needs: update-models-dev-pricing
+    if: ${{ always() }}
+    runs-on: blacksmith-32vcpu-ubuntu-2404-arm
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-nix-cache
+      - name: Update pinned publint CLI
+        run: |
+          # Regenerates nix/publint-package-lock.json and bumps the version +
+          # npmDepsHash in nix/publint.nix to the latest release on npm.
+          nix develop --command just update-publint
+      - name: Skip when already up to date
+        run: |
+          if git diff --quiet -- nix/publint.nix nix/publint-package-lock.json; then
+            echo "publint is already up to date; skipping PR."
+            git checkout -- nix/publint.nix nix/publint-package-lock.json
+          fi
+      - name: Validate updated package
+        run: |
+          if git diff --quiet; then
+            echo "publint is already up to date."
+            exit 0
+          fi
+          nix develop --command just check
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet; then
+            echo "publint is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          gh auth setup-git
+
+          branch="automation/publint"
+          git checkout -B "$branch"
+          git add nix/publint.nix nix/publint-package-lock.json
+          version="$(nix eval --raw .#publint.version)"
+          git commit -m "chore(deps): update publint to ${version}"
+          git push --force origin "$branch"
+
+          body="$(printf '%s\n' \
+            'Updates the pinned publint CLI used by the dev shell and flake checks.' \
+            '' \
+            'Validation:' \
+            '- just check')"
+
+          if gh pr view "$branch" >/dev/null 2>&1; then
+            printf '%s\n' "$body" | gh pr edit "$branch" --title "chore(deps): update publint to ${version}" --body-file -
+          else
+            printf '%s\n' "$body" | gh pr create --base main --head "$branch" --title "chore(deps): update publint to ${version}" --body-file -
+          fi
