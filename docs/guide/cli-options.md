@@ -12,13 +12,13 @@ Filter usage data by date range:
 
 ```bash
 # Filter by date range
-ccusage daily --since 20250101 --until 20250630
+ccusage daily --since 20260101 --until 20260531
 
 # Show data from a specific date
-ccusage monthly --since 20250101
+ccusage monthly --since 20260101
 
 # Show data up to a specific date
-ccusage session --until 20250630
+ccusage session --until 20260531
 ```
 
 ### Output Format
@@ -75,18 +75,6 @@ ccusage daily --offline
 ccusage daily -O
 ```
 
-### Pricing Refresh
-
-Refresh local pricing cache from LiteLLM explicitly:
-
-```bash
-# One-shot refresh from LiteLLM, then run report
-ccusage daily --update-pricing
-
-# Force no network even when refresh flag is present
-ccusage daily --offline --update-pricing
-```
-
 ### Timezone
 
 Set the timezone for date calculations:
@@ -110,40 +98,6 @@ The timezone affects how usage is grouped by date. For example, usage at 11 PM U
 - **January 1st** when `--timezone UTC`
 - **January 1st** when `--timezone America/New_York` (6 PM EST)
 - **January 2nd** when `--timezone Asia/Tokyo` (8 AM JST next day)
-
-### Locale
-
-Control date and time formatting:
-
-```bash
-# US English (12-hour time format)
-ccusage daily --locale en-US
-
-# Japanese (24-hour time format)
-ccusage blocks --locale ja-JP
-
-# German (24-hour time format)
-ccusage session -l de-DE
-
-# Short alias
-ccusage daily -l fr-FR
-```
-
-#### Locale Effects
-
-The locale affects display formatting:
-
-**Date Format:**
-
-- `en-US`: 08/04/2025
-- `en-CA`: 2025-08-04 (ISO format, default)
-- `ja-JP`: 2025/08/04
-- `de-DE`: 04.08.2025
-
-**Time Format:**
-
-- `en-US`: 3:30:00 PM (12-hour)
-- Others: 15:30:00 (24-hour)
 
 ### Debug Options
 
@@ -233,8 +187,6 @@ ccusage blocks --live --refresh-interval 2
 ccusage blocks --session-length 5
 ```
 
-> **Note:** The MCP server CLI moved to the dedicated `@ccusage/mcp` package. See the [MCP Server guide](/guide/mcp-server) for usage details.
-
 ### Statusline
 
 Options for statusline display:
@@ -253,19 +205,17 @@ ccusage statusline --cache
 ccusage statusline --refresh-interval 5
 ```
 
-## JSON Output Options
-
-When using `--json` output, additional processing options are available:
+## JSON Output
 
 ```bash
-# Apply jq filter to JSON output
-ccusage daily --json --jq ".data[]"
+# Print JSON output
+ccusage daily --json
 
-# Filter high-cost days
-ccusage daily --json --jq ".data[] | select(.cost > 10)"
+# Pipe JSON output to jq
+ccusage daily --json | jq ".data[]"
 
 # Extract specific fields
-ccusage session --json --jq ".data[] | {date, cost}"
+ccusage session --json | jq ".data[] | {date, cost}"
 ```
 
 ## Option Precedence
@@ -288,7 +238,7 @@ Options are applied in this order (highest to lowest priority):
 ccusage daily --instances --breakdown
 
 # Check specific project costs
-ccusage daily --project myapp --since 20250101
+ccusage daily --project myapp --since 20260101
 
 # Export for reporting
 ccusage monthly --json > monthly-report.json
@@ -301,10 +251,10 @@ ccusage monthly --json > monthly-report.json
 ccusage daily --config ./team-config.json
 
 # Consistent timezone for remote team
-ccusage daily --timezone UTC --locale en-CA
+ccusage daily --timezone UTC
 
 # Generate shareable report
-ccusage weekly --json --jq ".summary"
+ccusage weekly --json
 ```
 
 ### Cost Monitoring
@@ -337,18 +287,16 @@ LOG_LEVEL=0 ccusage daily --json
 
 Many options have short aliases for convenience:
 
-| Long Option        | Short | Description                 |
-| ------------------ | ----- | --------------------------- |
-| `--json`           | `-j`  | JSON output                 |
-| `--breakdown`      | `-b`  | Per-model breakdown         |
-| `--offline`        | `-O`  | Offline mode                |
-| `--update-pricing` | -     | Refresh local pricing cache |
-| `--timezone`       | `-z`  | Set timezone                |
-| `--locale`         | `-l`  | Set locale                  |
-| `--instances`      | `-i`  | Group by project            |
-| `--project`        | `-p`  | Filter project              |
-| `--active`         | `-a`  | Active block only           |
-| `--recent`         | `-r`  | Recent blocks               |
+| Long Option   | Short | Description         |
+| ------------- | ----- | ------------------- |
+| `--json`      | `-j`  | JSON output         |
+| `--breakdown` | `-b`  | Per-model breakdown |
+| `--offline`   | `-O`  | Offline mode        |
+| `--timezone`  | `-z`  | Set timezone        |
+| `--instances` | `-i`  | Group by project    |
+| `--project`   | `-p`  | Filter project      |
+| `--active`    | `-a`  | Active block only   |
+| `--recent`    | `-r`  | Recent blocks       |
 
 ## Related Documentation
 
