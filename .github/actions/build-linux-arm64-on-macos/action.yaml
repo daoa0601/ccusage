@@ -24,7 +24,7 @@ runs:
           "https://github.com/apple/container/releases/download/$CONTAINER_VERSION/container-$CONTAINER_VERSION-installer-signed.pkg"
         echo "$CONTAINER_SHA256  $package" | shasum --algorithm 256 --check
         sudo installer -pkg "$package" -target /
-        container system start
+        printf 'Y\n' | container system start
 
     - name: Build Linux ARM64 static binary
       shell: bash
