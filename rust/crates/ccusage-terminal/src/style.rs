@@ -6,6 +6,7 @@ use std::{
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Color {
     Blue,
+    Cyan,
     Green,
     Grey,
     Red,
@@ -27,6 +28,7 @@ pub fn color(style: impl Into<TerminalStyle>, value: impl AsRef<str>, color: Col
     }
     let code = match color {
         Color::Blue => 34,
+        Color::Cyan => 36,
         Color::Green => 32,
         Color::Grey => 90,
         Color::Red => 31,

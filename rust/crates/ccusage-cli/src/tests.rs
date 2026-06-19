@@ -202,6 +202,12 @@ fn command_snapshot(command: Option<Command>) -> Value {
         Some(Command::Kimi(args)) => agent_command_snapshot("kimi", args),
         Some(Command::Qwen(args)) => agent_command_snapshot("qwen", args),
         Some(Command::OpenClaw(args)) => agent_command_snapshot("openclaw", args),
+        Some(Command::Mcp(args)) => json!({
+            "type": "mcp",
+            "shared": shared_snapshot(&args.shared),
+            "transport": format!("{:?}", args.transport),
+            "port": args.port,
+        }),
     }
 }
 
@@ -270,6 +276,17 @@ fn parses_legacy_by_model_for_all_agent_report() {
     assert_eq!(args.kind, AgentReportKind::Session);
     assert!(args.shared.by_model);
     assert_eq!(args.shared.tool_filter, Some(vec!["pi".to_string()]));
+}
+
+#[test]
+fn parses_by_provider_for_all_agent_report() {
+    let cli = parse(&["ccusage", "daily", "--tool", "all", "--by-provider"]);
+    let Some(Command::All(args)) = cli.command else {
+        panic!("expected all-agent command");
+    };
+    assert_eq!(args.kind, AgentReportKind::Daily);
+    assert!(args.shared.by_provider);
+    assert_eq!(args.shared.tool_filter, None);
 }
 
 #[test]

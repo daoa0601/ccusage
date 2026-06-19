@@ -1,5 +1,6 @@
 ---
-source: crates/ccusage/src/cli.rs
+source: crates/ccusage-cli/src/tests.rs
+assertion_line: 504
 expression: help_text()
 ---
 USAGE:
@@ -13,6 +14,7 @@ COMMANDS:
   session                    Show all detected coding (agent) CLI usage grouped by session
   blocks                     Show usage report grouped by session billing blocks
   statusline                 Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)
+  mcp                        Start MCP server with usage reporting tools
   claude                     Show Claude Code usage commands
   codex                      Show Codex token usage commands
   opencode                   Show OpenCode token usage commands
@@ -36,6 +38,7 @@ For more info, run any command with the `--help` flag:
   ccusage session --help
   ccusage blocks --help
   ccusage statusline --help
+  ccusage mcp --help
   ccusage claude --help
   ccusage codex --help
   ccusage opencode --help
@@ -58,8 +61,10 @@ OPTIONS:
   -u, --until <until>                  Filter until date (inclusive)
   -z, --timezone <timezone>            Timezone for date grouping (IANA)
   --all                                Accepted for compatibility; all detected supported agents are included by default (default: false)
+  --by-provider                        Collapse all-agent report rows by provider instead of by date, week, month, or session (default: false)
   -O, --offline                        Use cached pricing data where supported (default: false)
   --no-offline                         Negatable of -O, --offline
+  --update-pricing                     Force-refresh LiteLLM pricing and update the local pricing cache for this run (default: false)
   --compact                            Force compact table layout for narrow terminals (default: false)
   --color                              Enable colored output. FORCE_COLOR=1 has the same effect. (default: auto)
   --no-color                           Disable colored output. NO_COLOR=1 has the same effect. (default: auto)

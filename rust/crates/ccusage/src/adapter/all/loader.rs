@@ -15,7 +15,10 @@ use crate::{
 
 use super::{
     report::sort_rows,
-    types::{AgentLoadSpec, AgentRows, AllAccumulator, AllLoadResult, AllRow, LoadedAgentRows},
+    types::{
+        merge_agent_breakdown, AgentLoadSpec, AgentRows, AllAccumulator, AllLoadResult, AllRow,
+        LoadedAgentRows,
+    },
 };
 
 pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<AllLoadResult> {
@@ -26,7 +29,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
                 crate::progress::usage_load_output_is_tty(),
             ),
     );
-    let pricing = PricingMap::load(shared.offline, crate::log_level() != Some(0));
+    let pricing = PricingMap::load(shared.offline, shared.update_pricing, crate::log_level() != Some(0));
     let load_kind = match kind {
         AgentReportKind::Session => AgentReportKind::Session,
         AgentReportKind::Daily | AgentReportKind::Weekly | AgentReportKind::Monthly => {
@@ -246,6 +249,15 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             loaded.agent_rows,
         );
     }
+    if shared.by_provider {
+        let mut rows = split_rows_by_model(aggregate_rows_by_provider(rows), shared);
+        sort_rows(&mut rows, &shared.order);
+        return Ok(AllLoadResult {
+            rows,
+            detected_agents,
+        });
+    }
+
     if kind == AgentReportKind::Session {
         for row in &mut rows {
             row.metadata_agents = None;
@@ -264,6 +276,32 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
         rows: aggregated,
         detected_agents,
     })
+}
+
+pub(super) fn aggregate_rows_by_provider(rows: Vec<AllRow>) -> Vec<AllRow> {
+    let mut groups = BTreeMap::<&'static str, AllRow>::new();
+    for mut row in rows {
+        row.period = "all".to_string();
+        row.metadata = None;
+        row.metadata_agents = Some(vec![row.agent]);
+        match groups.get_mut(row.agent) {
+            Some(existing) => merge_agent_breakdown(existing, row),
+            None => {
+                groups.insert(row.agent, row);
+            }
+        }
+    }
+
+    groups
+        .into_values()
+        .map(|mut row| {
+            row.period = "all".to_string();
+            row.metadata = None;
+            row.metadata_agents = Some(vec![row.agent]);
+            row.agent_breakdowns = None;
+            row
+        })
+        .collect()
 }
 
 fn filter_agent_specs(specs: &mut Vec<AgentLoadSpec<'_>>, shared: &SharedArgs) {

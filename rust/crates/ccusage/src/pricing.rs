@@ -20,6 +20,8 @@ const MODELS_DEV_FAILURE_RETRY_AFTER: Duration = Duration::from_secs(60);
 // Anthropic date-suffixed model aliases use YYYYMMDD, while other numeric
 // suffixes are treated as distinct model versions.
 const MODEL_DATE_SUFFIX_DIGITS: usize = 8;
+const FNV_OFFSET: u64 = 0xcbf29ce484222325;
+const FNV_PRIME: u64 = 0x100000001b3;
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Pricing {
@@ -164,10 +166,19 @@ impl PricingMap {
         map
     }
 
-    pub(crate) fn load(offline: bool, log: bool) -> Self {
+    pub(crate) fn load(offline: bool, force_refresh: bool, log: bool) -> Self {
         let mut map = Self::load_embedded();
         if offline {
             return map;
+        }
+
+        if !force_refresh {
+            if let Some(json) = crate::pricing_cache::read_fresh_pricing_cache() {
+                if map.load_json(&json) > 0 {
+                    map.enable_models_dev_fallback = true;
+                    return map;
+                }
+            }
         }
 
         let fetch_result = crate::progress::track_status(
@@ -179,14 +190,23 @@ impl PricingMap {
         match fetch_result {
             Ok(json) => {
                 let loaded_count = map.load_json(&json);
+                if loaded_count > 0 {
+                    crate::pricing_cache::write_pricing_cache(&json);
+                }
                 if loaded_count == 0 && should_log_pricing_refresh_details() {
                     eprintln!("WARN  Failed to parse LiteLLM pricing; using embedded pricing.");
                 }
             }
             Err(error) => {
-                if should_log_pricing_refresh_details() {
+                let loaded_stale_cache = crate::pricing_cache::read_pricing_cache()
+                    .is_some_and(|json| map.load_json(&json) > 0);
+                if should_log_pricing_refresh_details() && !loaded_stale_cache {
                     eprintln!(
                         "WARN  Failed to fetch LiteLLM pricing ({error}); using embedded pricing."
+                    );
+                } else if should_log_pricing_refresh_details() {
+                    eprintln!(
+                        "WARN  Failed to fetch LiteLLM pricing ({error}); using cached pricing."
                     );
                 }
             }
@@ -447,6 +467,21 @@ impl PricingMap {
             },
         );
         self.entries.insert(
+            "claude-fable-5".to_string(),
+            Pricing {
+                input: 10e-6,
+                output: 50e-6,
+                cache_create: 12.5e-6,
+                cache_read: 1e-6,
+                cache_read_explicit: true,
+                input_above_200k: None,
+                output_above_200k: None,
+                cache_create_above_200k: None,
+                cache_read_above_200k: None,
+                fast_multiplier: 1.0,
+            },
+        );
+        self.entries.insert(
             "claude-opus-4".to_string(),
             Pricing {
                 input: 15e-6,
@@ -631,6 +666,30 @@ impl PricingMap {
                 fast_multiplier: 1.0,
             },
         );
+        for (model, input, output, cache_read) in [
+            ("zai/glm-4.6", 0.6e-6, 2.2e-6, 0.11e-6),
+            ("zai/glm-4.7", 0.6e-6, 2.2e-6, 0.11e-6),
+            ("zai/glm-4.7-flash", 0.07e-6, 0.4e-6, 0.0),
+            ("zai/glm-5", 1.0e-6, 3.2e-6, 0.2e-6),
+            ("zai/glm-5.2", 1.4e-6, 4.4e-6, 0.26e-6),
+            ("zai/glm-5.2[1m]", 1.4e-6, 4.4e-6, 0.26e-6),
+        ] {
+            self.entries.insert(
+                model.to_string(),
+                Pricing {
+                    input,
+                    output,
+                    cache_create: input * 1.25,
+                    cache_read,
+                    cache_read_explicit: true,
+                    input_above_200k: None,
+                    output_above_200k: None,
+                    cache_create_above_200k: None,
+                    cache_read_above_200k: None,
+                    fast_multiplier: 1.0,
+                },
+            );
+        }
         let gpt_5_1_pricing = Pricing {
             input: 1.25e-6,
             output: 10e-6,
@@ -727,6 +786,7 @@ impl PricingMap {
             "claude-opus-4-7",
             "claude-opus-4-6",
             "claude-sonnet-4-6",
+            "claude-fable-5",
         ] {
             self.context_limits.insert(model.to_string(), 1_000_000);
         }
@@ -734,6 +794,9 @@ impl PricingMap {
             .insert("moonshot/kimi-k2.5".to_string(), 262_144);
         self.context_limits
             .insert("moonshot/kimi-k2.6".to_string(), 262_144);
+        for model in ["zai/glm-5.2", "zai/glm-5.2[1m]"] {
+            self.context_limits.insert(model.to_string(), 1_000_000);
+        }
 
         for model in [
             "claude-opus-4-5",
@@ -749,6 +812,58 @@ impl PricingMap {
             self.context_limits.insert(model.to_string(), 200_000);
         }
     }
+}
+
+pub(crate) fn embedded_pricing_fingerprint() -> String {
+    let pricing = PricingMap::load_embedded();
+    format!(
+        "pricing:offline:{:016x}",
+        pricing.embedded_fingerprint_hash()
+    )
+}
+
+impl PricingMap {
+    fn embedded_fingerprint_hash(&self) -> u64 {
+        let mut hash = FNV_OFFSET;
+        let mut entries = self.entries.iter().collect::<Vec<_>>();
+        entries.sort_by(|(left, _), (right, _)| left.cmp(right));
+        for (model, pricing) in entries {
+            hash = hash_combine(hash, model.as_bytes());
+            hash = hash_combine(hash, &pricing.input.to_bits().to_le_bytes());
+            hash = hash_combine(hash, &pricing.output.to_bits().to_le_bytes());
+            hash = hash_combine(hash, &pricing.cache_create.to_bits().to_le_bytes());
+            hash = hash_combine(hash, &pricing.cache_read.to_bits().to_le_bytes());
+            hash = hash_combine(hash, &[u8::from(pricing.cache_read_explicit)]);
+            hash = hash_combine_optional_f64(hash, pricing.input_above_200k);
+            hash = hash_combine_optional_f64(hash, pricing.output_above_200k);
+            hash = hash_combine_optional_f64(hash, pricing.cache_create_above_200k);
+            hash = hash_combine_optional_f64(hash, pricing.cache_read_above_200k);
+            hash = hash_combine(hash, &pricing.fast_multiplier.to_bits().to_le_bytes());
+        }
+
+        let mut context_limits = self.context_limits.iter().collect::<Vec<_>>();
+        context_limits.sort_by(|(left, _), (right, _)| left.cmp(right));
+        for (model, context_limit) in context_limits {
+            hash = hash_combine(hash, model.as_bytes());
+            hash = hash_combine(hash, &context_limit.to_le_bytes());
+        }
+        hash
+    }
+}
+
+fn hash_combine_optional_f64(hash: u64, value: Option<f64>) -> u64 {
+    match value {
+        Some(value) => hash_combine(hash_combine(hash, &[1]), &value.to_bits().to_le_bytes()),
+        None => hash_combine(hash, &[0]),
+    }
+}
+
+fn hash_combine(mut hash: u64, bytes: &[u8]) -> u64 {
+    for byte in bytes {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(FNV_PRIME);
+    }
+    hash
 }
 
 /// Matches pricing keys across provider/model aliases while preserving version boundaries.
@@ -942,6 +1057,40 @@ mod tests {
     }
 
     #[test]
+    fn embedded_pricing_includes_claude_fable_5_for_offline_reports() {
+        let pricing = PricingMap::load_embedded();
+        let fable = pricing.find("claude-fable-5").unwrap();
+
+        assert_eq!(fable.input, 10e-6);
+        assert_eq!(fable.output, 50e-6);
+        assert_eq!(fable.cache_create, 12.5e-6);
+        assert_eq!(fable.cache_read, 1e-6);
+        assert!(fable.cache_read_explicit);
+        assert_eq!(
+            pricing.find("claude-fable-5[1m]").unwrap().input,
+            fable.input
+        );
+        assert_eq!(pricing.context_limit("claude-fable-5"), Some(1_000_000));
+    }
+
+    #[test]
+    fn embedded_pricing_includes_opencode_glm_for_offline_reports() {
+        let pricing = PricingMap::load_embedded();
+
+        assert!(pricing.find("glm-4.6").unwrap().input > 0.0);
+        assert!(pricing.find("glm-4.7").unwrap().output > 0.0);
+        assert!(pricing.find("glm-4.7-flash").unwrap().output > 0.0);
+        assert!(pricing.find("glm-5").unwrap().output > 0.0);
+        let glm_52 = pricing.find("glm-5.2").unwrap();
+        assert_eq!(glm_52.input, 1.4e-6);
+        assert_eq!(glm_52.output, 4.4e-6);
+        assert_eq!(glm_52.cache_read, 0.26e-6);
+        assert!(glm_52.cache_read_explicit);
+        assert_eq!(pricing.find("glm-5.2[1m]").unwrap().input, glm_52.input);
+        assert_eq!(pricing.context_limit("glm-5.2[1m]"), Some(1_000_000));
+    }
+
+    #[test]
     fn records_whether_cache_read_rate_came_from_litellm_pricing() {
         let mut pricing = PricingMap::default();
         pricing.load_json(
@@ -991,7 +1140,7 @@ mod tests {
     #[test]
     fn keeps_models_dev_fallback_disabled_for_embedded_and_offline_pricing() {
         assert!(!PricingMap::load_embedded().models_dev_fallback_enabled());
-        assert!(!PricingMap::load(true, false).models_dev_fallback_enabled());
+        assert!(!PricingMap::load(true, false, false).models_dev_fallback_enabled());
     }
 
     #[test]
@@ -1470,8 +1619,9 @@ mod tests {
     fn embedded_build_time_pricing_is_compact() {
         assert!(BUILD_TIME_PRICING_JSON.len() < 200_000);
         assert!(!BUILD_TIME_PRICING_JSON.contains("\"source\""));
-        assert!(!BUILD_TIME_PRICING_JSON.contains("vertex_ai/"));
         assert!(BUILD_TIME_PRICING_JSON.contains("claude-sonnet-4-20250514"));
+        assert!(BUILD_TIME_PRICING_JSON.contains("gemini-3-pro-preview"));
+        assert!(BUILD_TIME_PRICING_JSON.contains("glm-5"));
     }
 
     #[test]

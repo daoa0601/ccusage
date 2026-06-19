@@ -1,5 +1,6 @@
 ---
-source: crates/ccusage/src/cli.rs
+source: crates/ccusage-cli/src/tests.rs
+assertion_line: 509
 expression: "help_text_for_args(&[\"ccusage\".to_string(), \"codex\".to_string(),\n\"daily\".to_string(),])"
 ---
 Show Codex token usage grouped by day
@@ -14,6 +15,7 @@ OPTIONS:
   -z, --timezone <timezone>            Timezone for date grouping (IANA)
   -O, --offline                        Use cached pricing data instead of fetching from LiteLLM (default: false)
   --no-offline                         Negatable of -O, --offline
+  --update-pricing                     Force-refresh LiteLLM pricing and update the local pricing cache for this run (default: false)
   --speed [speed]                      Cost speed tier: auto reads Codex config.toml service_tier; use standard or fast to override (default: auto, choices: auto | standard | fast)
   --compact                            Force compact table layout for narrow terminals (default: false)
   --color                              Enable colored output. FORCE_COLOR=1 has the same effect. (default: auto)

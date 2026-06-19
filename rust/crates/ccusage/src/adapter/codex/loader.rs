@@ -1,15 +1,17 @@
-use std::{
-    path::{Path, PathBuf},
-    thread,
-};
+use std::path::{Path, PathBuf};
 
 use compact_str::CompactString;
 
+#[cfg(not(test))]
+use crate::chunk_file_indexes_by_size;
 use crate::{
-    chunk_file_indexes_by_size, cli::SharedArgs, collect_usage_files, fast::FxHashSet, progress,
-    CodexTokenUsageEvent, Result,
+    cli::SharedArgs, collect_usage_files, fast::FxHashSet, progress, CodexTokenUsageEvent, Result,
 };
+#[cfg(not(test))]
+use std::thread;
 
+#[cfg(not(test))]
+use super::session_index::{self, SessionIndexEntry};
 use super::{parser::visit_codex_session_file, paths::codex_usage_paths};
 
 pub(crate) fn load_codex_events_from_directory(
@@ -19,14 +21,7 @@ pub(crate) fn load_codex_events_from_directory(
     let mut files = Vec::new();
     collect_usage_files(sessions_dir, &mut files);
     files.sort_by_cached_key(|path| path.to_string_lossy().into_owned());
-    let mut events = if single_thread {
-        files
-            .iter()
-            .flat_map(|file| read_codex_session_file(sessions_dir, file))
-            .collect::<Vec<_>>()
-    } else {
-        read_codex_session_files_parallel(sessions_dir, &files)
-    };
+    let mut events = read_codex_session_files_with_index(sessions_dir, &files, single_thread);
     dedupe_codex_events(&mut events);
     Ok(events)
 }
@@ -49,10 +44,90 @@ fn load_codex_events_inner(shared: &SharedArgs) -> Result<Vec<CodexTokenUsageEve
     Ok(events)
 }
 
-fn read_codex_session_files_parallel(
+fn read_codex_session_files_with_index(
     sessions_dir: &Path,
     files: &[PathBuf],
+    single_thread: bool,
 ) -> Vec<CodexTokenUsageEvent> {
+    #[cfg(test)]
+    {
+        let _ = single_thread;
+        return files
+            .iter()
+            .flat_map(|file| read_codex_session_file(sessions_dir, file))
+            .collect();
+    }
+
+    #[cfg(not(test))]
+    {
+        let mut index = session_index::read_session_index();
+        let mut loaded_files = Vec::new();
+        loaded_files.resize_with(files.len(), || None);
+        let mut changed_files = Vec::new();
+
+        for (file_index, file) in files.iter().enumerate() {
+            let key = session_index::cache_key(file);
+            let Some((size, mtime_ms)) = session_index::file_state(file) else {
+                continue;
+            };
+            if let Some(entry) = index.get(&key) {
+                if entry.size == size && entry.mtime_ms == mtime_ms {
+                    loaded_files[file_index] = Some(entry.events.clone());
+                    continue;
+                }
+            }
+            changed_files.push((file_index, file.clone(), key, size, mtime_ms));
+        }
+
+        let parsed_files = if single_thread {
+            changed_files
+                .iter()
+                .map(|(file_index, file, key, size, mtime_ms)| {
+                    (
+                        *file_index,
+                        key.clone(),
+                        *size,
+                        *mtime_ms,
+                        read_codex_session_file(sessions_dir, file),
+                    )
+                })
+                .collect::<Vec<_>>()
+        } else {
+            read_changed_codex_session_files_parallel(sessions_dir, &changed_files)
+        };
+
+        let mut index_changed = false;
+        for (file_index, key, size, mtime_ms, events) in parsed_files {
+            loaded_files[file_index] = Some(events.clone());
+            index.insert(
+                key.clone(),
+                SessionIndexEntry {
+                    file: key,
+                    session_id: session_index::session_id_from_path(&files[file_index]),
+                    size,
+                    mtime_ms,
+                    events,
+                },
+            );
+            index_changed = true;
+        }
+        if index_changed {
+            session_index::write_session_index(&index);
+        }
+
+        loaded_files
+            .into_iter()
+            .flatten()
+            .flatten()
+            .collect::<Vec<_>>()
+    }
+}
+
+#[cfg(not(test))]
+fn read_changed_codex_session_files_parallel(
+    sessions_dir: &Path,
+    files: &[(usize, PathBuf, String, u64, u64)],
+) -> Vec<(usize, String, u64, u64, Vec<CodexTokenUsageEvent>)> {
     let worker_count = thread::available_parallelism()
         .map(usize::from)
         .unwrap_or(1)
@@ -60,35 +135,49 @@ fn read_codex_session_files_parallel(
     if worker_count <= 1 {
         return files
             .iter()
-            .flat_map(|file| read_codex_session_file(sessions_dir, file))
+            .map(|(file_index, file, key, size, mtime_ms)| {
+                (
+                    *file_index,
+                    key.clone(),
+                    *size,
+                    *mtime_ms,
+                    read_codex_session_file(sessions_dir, file),
+                )
+            })
             .collect();
     }
 
-    let chunks = chunk_file_indexes_by_size(files, worker_count);
+    let paths = files
+        .iter()
+        .map(|(_, path, _, _, _)| path.clone())
+        .collect::<Vec<_>>();
+    let chunks = chunk_file_indexes_by_size(&paths, worker_count);
     thread::scope(|scope| {
         let mut handles = Vec::with_capacity(chunks.len());
         for chunk in chunks {
             handles.push(scope.spawn(move || {
                 chunk
                     .into_iter()
-                    .map(|index| (index, read_codex_session_file(sessions_dir, &files[index])))
+                    .map(|index| {
+                        let (file_index, file, key, size, mtime_ms) = &files[index];
+                        (
+                            *file_index,
+                            key.clone(),
+                            *size,
+                            *mtime_ms,
+                            read_codex_session_file(sessions_dir, file),
+                        )
+                    })
                     .collect::<Vec<_>>()
             }));
         }
 
-        let mut loaded_files = Vec::with_capacity(files.len());
-        loaded_files.resize_with(files.len(), || None);
-        for (index, events) in handles
+        let mut loaded = handles
             .into_iter()
             .flat_map(|handle| handle.join().expect("codex worker panicked"))
-        {
-            loaded_files[index] = Some(events);
-        }
-        loaded_files
-            .into_iter()
-            .flatten()
-            .flatten()
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>();
+        loaded.sort_by_key(|(file_index, _, _, _, _)| *file_index);
+        loaded
     })
 }
 
@@ -456,6 +545,83 @@ mod tests {
             vec![Some("gpt-5.5"), Some("gpt-5.5")]
         );
         assert!(events.iter().all(|event| !event.is_fallback_model));
+    }
+
+    #[test]
+    fn skips_initial_codex_desktop_fork_replay_without_bootstrap_marker() {
+        let fixture = fs_fixture!({
+            "rollout-2026-06-15T08-13-09-019ec9b2-a82c-7b02-a6b1-44ec3c6e3723.jsonl": [
+                json!({
+                    "timestamp": "2026-06-15T05:13:09.000Z",
+                    "type": "session_meta",
+                    "payload": {
+                        "id": "019ec9b2-a82c-7b02-a6b1-44ec3c6e3723",
+                        "forked_from_id": "019ec646-0bd0-7fc2-bfe3-e2ab626ede0b",
+                    },
+                })
+                .to_string(),
+                json!({
+                    "timestamp": "2026-06-15T05:13:09.200Z",
+                    "type": "turn_context",
+                    "payload": {
+                        "model": "gpt-5.5",
+                    },
+                })
+                .to_string(),
+                json!({
+                    "timestamp": "2026-06-15T05:13:09.300Z",
+                    "type": "event_msg",
+                    "payload": {
+                        "type": "token_count",
+                        "info": {
+                            "last_token_usage": {
+                                "input_tokens": 200_000,
+                                "cached_input_tokens": 190_000,
+                                "output_tokens": 1_000,
+                                "reasoning_output_tokens": 100,
+                                "total_tokens": 201_000,
+                            },
+                        },
+                    },
+                })
+                .to_string(),
+                json!({
+                    "timestamp": "2026-06-15T05:13:12.000Z",
+                    "type": "turn_context",
+                    "payload": {
+                        "model": "gpt-5.5",
+                    },
+                })
+                .to_string(),
+                json!({
+                    "timestamp": "2026-06-15T05:13:12.500Z",
+                    "type": "event_msg",
+                    "payload": {
+                        "type": "token_count",
+                        "info": {
+                            "last_token_usage": {
+                                "input_tokens": 1_500,
+                                "cached_input_tokens": 1_000,
+                                "output_tokens": 200,
+                                "reasoning_output_tokens": 50,
+                                "total_tokens": 1_700,
+                            },
+                        },
+                    },
+                })
+                .to_string(),
+            ]
+            .join("\n"),
+        });
+
+        let events = load_codex_events_from_directory(fixture.root(), true).unwrap();
+
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].model.as_deref(), Some("gpt-5.5"));
+        assert_eq!(events[0].input_tokens, 1_500);
+        assert_eq!(events[0].cached_input_tokens, 1_000);
+        assert_eq!(events[0].output_tokens, 200);
+        assert_eq!(events[0].total_tokens, 1_700);
     }
 
     #[test]

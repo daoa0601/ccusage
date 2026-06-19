@@ -104,6 +104,7 @@ bunx ccusage pi daily --pi-path /path/to/sessions,/archive/pi/sessions
 
 # Explicit unified report
 bunx ccusage daily --all
+bunx ccusage daily --all --by-provider  # Collapse usage to one row per provider
 
 # Filters and options
 bunx ccusage daily --since 2026-04-25 --until 2026-05-16

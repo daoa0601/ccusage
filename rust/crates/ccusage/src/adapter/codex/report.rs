@@ -223,6 +223,9 @@ pub(super) fn print_table_from_groups(
         ),
         shared,
     );
+    if kind == AgentReportKind::Session {
+        return print_codex_session_table(groups, pricing, speed, shared);
+    }
     let mut table = SimpleTable::new(
         vec![
             first_column,
@@ -293,4 +296,110 @@ pub(super) fn print_table_from_groups(
         shared.offline,
     );
     Ok(())
+}
+
+fn print_codex_session_table(
+    groups: &BTreeMap<String, CodexGroup>,
+    pricing: &PricingMap,
+    speed: CodexSpeed,
+    shared: &SharedArgs,
+) -> Result<()> {
+    let mut table = SimpleTable::new(
+        vec![
+            "Date",
+            "Directory",
+            "Session",
+            "Models",
+            "Input",
+            "Output",
+            "Reasoning",
+            "Cache Read",
+            "Total Tokens",
+            "Cost (USD)",
+            "Last Activity",
+        ],
+        vec![
+            Align::Left,
+            Align::Left,
+            Align::Left,
+            Align::Left,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Left,
+        ],
+        crate::terminal_style(shared),
+    )
+    .with_terminal_width(crate::terminal_width());
+    let mut total_input = 0;
+    let mut total_output = 0;
+    let mut total_reasoning = 0;
+    let mut total_cached = 0;
+    let mut total_tokens = 0;
+    let mut total_cost = 0.0;
+    for (period, group) in groups {
+        let cost = calculate_group_cost(group, pricing, speed);
+        let input_tokens = non_cached_input_tokens(group.input_tokens, group.cached_input_tokens);
+        let (directory, file_name) = period
+            .rfind('/')
+            .map_or(("", period.as_str()), |index| (&period[..index], &period[index + 1..]));
+        let last_activity = group.last_activity.clone().unwrap_or_default();
+        let date = last_activity.get(..10).unwrap_or("").to_string();
+        table.push(vec![
+            date,
+            directory.to_string(),
+            short_session_label(file_name),
+            format_models_multiline(&group.models.keys().cloned().collect::<Vec<_>>()),
+            format_number(input_tokens),
+            format_number(group.output_tokens),
+            format_number(group.reasoning_output_tokens),
+            format_number(group.cached_input_tokens),
+            format_number(group.total_tokens),
+            format_currency(cost),
+            last_activity,
+        ]);
+        total_input += input_tokens;
+        total_output += group.output_tokens;
+        total_reasoning += group.reasoning_output_tokens;
+        total_cached += group.cached_input_tokens;
+        total_tokens += group.total_tokens;
+        total_cost += cost;
+    }
+    table.separator();
+    table.push(vec![
+        color(shared, "Total", Color::Yellow),
+        String::new(),
+        String::new(),
+        String::new(),
+        color(shared, format_number(total_input), Color::Yellow),
+        color(shared, format_number(total_output), Color::Yellow),
+        color(shared, format_number(total_reasoning), Color::Yellow),
+        color(shared, format_number(total_cached), Color::Yellow),
+        color(shared, format_number(total_tokens), Color::Yellow),
+        color(shared, format_currency(total_cost), Color::Yellow),
+        String::new(),
+    ]);
+    table.print()?;
+    let missing_models = codex_missing_pricing_models(groups, pricing);
+    print_missing_pricing_warnings_for_models(
+        missing_models.iter().map(String::as_str),
+        shared.offline,
+    );
+    Ok(())
+}
+
+/// Shortens a Codex session file stem to its last 8 characters with a `...`
+/// prefix, mirroring the TS Codex session table.
+fn short_session_label(file_name: &str) -> String {
+    let stem = file_name.strip_suffix(".jsonl").unwrap_or(file_name);
+    let chars = stem.chars().collect::<Vec<_>>();
+    if chars.len() > 8 {
+        let tail = chars[chars.len() - 8..].iter().collect::<String>();
+        format!("...{tail}")
+    } else {
+        stem.to_string()
+    }
 }

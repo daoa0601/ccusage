@@ -3,10 +3,15 @@ mod loader;
 mod parser;
 mod paths;
 mod report;
+mod session_index;
 mod speed;
 mod types;
 
-use crate::{cli::AgentCommandArgs, log_level, print_json_or_jq, wants_json, PricingMap, Result};
+use crate::{
+    cli::{AgentCommandArgs, AgentReportKind, CodexSpeed, SharedArgs},
+    log_level, print_json_or_jq, wants_json, PricingMap, Result,
+};
+use serde_json::Value;
 
 pub(crate) use aggregate::{aggregate_events, filter_events_by_date, load_groups};
 pub(crate) use loader::load_codex_events;
@@ -21,17 +26,11 @@ pub(crate) use speed::resolve_codex_speed;
 use report::{print_table_from_groups, report_from_groups};
 
 #[cfg(test)]
-use crate::{
-    cli::{AgentReportKind, CodexSpeed},
-    CodexTokenUsageEvent,
-};
-
-#[cfg(test)]
-use serde_json::Value;
+use crate::CodexTokenUsageEvent;
 
 pub(crate) fn run(args: AgentCommandArgs) -> Result<()> {
     let shared = args.shared;
-    let pricing = PricingMap::load(shared.offline, log_level() != Some(0));
+    let pricing = PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0));
     let groups = load_groups(&shared, args.kind)?;
     let speed = resolve_codex_speed(args.codex_speed);
     if wants_json(&shared) {
@@ -39,6 +38,14 @@ pub(crate) fn run(args: AgentCommandArgs) -> Result<()> {
         return print_json_or_jq(output, shared.jq.as_deref());
     }
     print_table_from_groups(&groups, args.kind, &pricing, speed, &shared)
+}
+
+/// In-process Codex report (JSON only, no stdout) for the MCP codex tools.
+pub(crate) fn build_report_json(shared: &SharedArgs, kind: AgentReportKind) -> Result<Value> {
+    let pricing = PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0));
+    let groups = load_groups(shared, kind)?;
+    let speed = resolve_codex_speed(CodexSpeed::Auto);
+    Ok(report_from_groups(&groups, kind, &pricing, speed))
 }
 
 #[cfg(test)]

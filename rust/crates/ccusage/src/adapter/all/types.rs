@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{fast::FxHashMap, ModelBreakdown};
@@ -24,6 +25,128 @@ pub(super) struct AllRow {
 pub(super) struct AllLoadResult {
     pub(super) rows: Vec<AllRow>,
     pub(super) detected_agents: Vec<&'static str>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct CachedAllLoadResult {
+    rows: Vec<CachedAllRow>,
+    detected_agents: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CachedAllRow {
+    period: String,
+    agent: String,
+    models_used: Vec<String>,
+    input_tokens: u64,
+    output_tokens: u64,
+    cache_creation_tokens: u64,
+    cache_read_tokens: u64,
+    total_tokens: u64,
+    total_cost: f64,
+    metadata: Option<Value>,
+    metadata_agents: Option<Vec<String>>,
+    agent_breakdowns: Option<Vec<CachedAllRow>>,
+    model_breakdowns: Vec<ModelBreakdown>,
+}
+
+impl AllLoadResult {
+    pub(super) fn into_cache(self) -> CachedAllLoadResult {
+        CachedAllLoadResult {
+            rows: self.rows.into_iter().map(CachedAllRow::from_row).collect(),
+            detected_agents: self
+                .detected_agents
+                .into_iter()
+                .map(str::to_string)
+                .collect(),
+        }
+    }
+}
+
+impl CachedAllLoadResult {
+    pub(super) fn into_result(self) -> AllLoadResult {
+        AllLoadResult {
+            rows: self.rows.into_iter().map(CachedAllRow::into_row).collect(),
+            detected_agents: self
+                .detected_agents
+                .into_iter()
+                .filter_map(|agent| static_agent(&agent))
+                .collect(),
+        }
+    }
+}
+
+impl CachedAllRow {
+    fn from_row(row: AllRow) -> Self {
+        Self {
+            period: row.period,
+            agent: row.agent.to_string(),
+            models_used: row.models_used,
+            input_tokens: row.input_tokens,
+            output_tokens: row.output_tokens,
+            cache_creation_tokens: row.cache_creation_tokens,
+            cache_read_tokens: row.cache_read_tokens,
+            total_tokens: row.total_tokens,
+            total_cost: row.total_cost,
+            metadata: row.metadata,
+            metadata_agents: row
+                .metadata_agents
+                .map(|agents| agents.into_iter().map(str::to_string).collect()),
+            agent_breakdowns: row
+                .agent_breakdowns
+                .map(|rows| rows.into_iter().map(Self::from_row).collect()),
+            model_breakdowns: row.model_breakdowns,
+        }
+    }
+
+    fn into_row(self) -> AllRow {
+        AllRow {
+            period: self.period,
+            agent: static_agent(&self.agent).unwrap_or("unknown"),
+            models_used: self.models_used,
+            input_tokens: self.input_tokens,
+            output_tokens: self.output_tokens,
+            cache_creation_tokens: self.cache_creation_tokens,
+            cache_read_tokens: self.cache_read_tokens,
+            total_tokens: self.total_tokens,
+            total_cost: self.total_cost,
+            metadata: self.metadata,
+            metadata_agents: self.metadata_agents.map(|agents| {
+                agents
+                    .into_iter()
+                    .filter_map(|agent| static_agent(&agent))
+                    .collect()
+            }),
+            agent_breakdowns: self
+                .agent_breakdowns
+                .map(|rows| rows.into_iter().map(Self::into_row).collect()),
+            model_breakdowns: self.model_breakdowns,
+        }
+    }
+}
+
+fn static_agent(agent: &str) -> Option<&'static str> {
+    Some(match agent {
+        "all" => "all",
+        "claude" => "claude",
+        "codex" => "codex",
+        "opencode" => "opencode",
+        "amp" => "amp",
+        "droid" => "droid",
+        "codebuff" => "codebuff",
+        "hermes" => "hermes",
+        "pi" => "pi",
+        "goose" => "goose",
+        "openclaw" => "openclaw",
+        "kilo" => "kilo",
+        "copilot" => "copilot",
+        "gemini" => "gemini",
+        "kimi" => "kimi",
+        "qwen" => "qwen",
+        _ => return None,
+    })
 }
 
 pub(super) struct AgentRows {
@@ -112,7 +235,7 @@ impl AllAccumulator {
     }
 }
 
-fn merge_agent_breakdown(target: &mut AllRow, source: AllRow) {
+pub(super) fn merge_agent_breakdown(target: &mut AllRow, source: AllRow) {
     target.input_tokens += source.input_tokens;
     target.output_tokens += source.output_tokens;
     target.cache_creation_tokens += source.cache_creation_tokens;

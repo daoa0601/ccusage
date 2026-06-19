@@ -98,11 +98,17 @@ fn calculate_open_code_cost(
     provider: &str,
     usage: TokenUsageRaw,
     cost_usd: Option<f64>,
-    _mode: CostMode,
+    mode: CostMode,
     pricing: Option<&PricingMap>,
 ) -> f64 {
-    if let Some(cost) = cost_usd.filter(|cost| *cost > 0.0) {
-        return cost;
+    match mode {
+        CostMode::Display => return cost_usd.unwrap_or(0.0),
+        CostMode::Auto => {
+            if let Some(cost) = cost_usd.filter(|cost| *cost > 0.0) {
+                return cost;
+            }
+        }
+        CostMode::Calculate => {}
     }
     for candidate in open_code_model_candidates(model, provider) {
         let cost =
@@ -151,7 +157,10 @@ fn open_code_model_candidates(model: &str, provider: &str) -> Vec<String> {
 
 fn resolve_open_code_model_name(model: &str) -> String {
     match model {
+        "antigravity-gemini-3-pro" => "gemini-3-pro-preview".to_string(),
         "gemini-3-pro-high" => "gemini-3-pro-preview".to_string(),
+        "kimi-k2.5-free" => "moonshot/kimi-k2.5".to_string(),
+        "kimi-k2.5" => "moonshot/kimi-k2.5".to_string(),
         "k2p6" => "kimi-k2.6".to_string(),
         _ => model.to_string(),
     }
@@ -343,6 +352,62 @@ mod tests {
         .unwrap();
 
         assert_eq!(entry.cost, 0.000143);
+    }
+
+    #[test]
+    fn calculates_cost_for_kimi_k25_free_when_opencode_stores_zero_cost() {
+        let pricing = PricingMap::load_embedded();
+        let entry = message_value_to_entry(
+            &json!({
+                "id": "message-a",
+                "sessionID": "session-a",
+                "providerID": "opencode",
+                "modelID": "kimi-k2.5-free",
+                "time": { "created": 0 },
+                "tokens": {
+                    "input": 100,
+                    "output": 10,
+                    "cache": { "read": 50 }
+                },
+                "cost": 0
+            }),
+            None,
+            None,
+            None,
+            CostMode::Auto,
+            Some(&pricing),
+        )
+        .unwrap();
+
+        assert!((entry.cost - 0.000095).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn display_mode_keeps_zero_opencode_cost_without_calculating() {
+        let pricing = PricingMap::load_embedded();
+        let entry = message_value_to_entry(
+            &json!({
+                "id": "message-a",
+                "sessionID": "session-a",
+                "providerID": "opencode",
+                "modelID": "kimi-k2.5-free",
+                "time": { "created": 0 },
+                "tokens": {
+                    "input": 100,
+                    "output": 10,
+                    "cache": { "read": 50 }
+                },
+                "cost": 0
+            }),
+            None,
+            None,
+            None,
+            CostMode::Display,
+            Some(&pricing),
+        )
+        .unwrap();
+
+        assert_eq!(entry.cost, 0.0);
     }
 
     #[test]

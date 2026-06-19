@@ -36,7 +36,11 @@ pub(crate) fn claude_paths() -> Result<Vec<PathBuf>> {
     let xdg = env::var("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from(&home).join(".config"));
-    for path in [xdg.join("claude"), home.join(".claude")] {
+    for path in [
+        xdg.join("claude"),
+        home.join(".claude"),
+        home.join(".ncode"),
+    ] {
         if path.join("projects").is_dir() && seen.insert(path.clone()) {
             paths.push(path);
         }

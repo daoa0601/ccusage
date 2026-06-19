@@ -18,10 +18,16 @@ use super::types::{
 
 static EVENT_MSG_TYPE_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""type":"event_msg""#));
+static SESSION_META_TYPE_FINDER: LazyLock<Finder<'static>> =
+    LazyLock::new(|| Finder::new(br#""type":"session_meta""#));
 static TURN_CONTEXT_TYPE_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""type":"turn_context""#));
 static TOKEN_COUNT_TYPE_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""type":"token_count""#));
+static USER_MESSAGE_TYPE_FINDER: LazyLock<Finder<'static>> =
+    LazyLock::new(|| Finder::new(br#""type":"user_message""#));
+static FORK_BOOTSTRAP_MARKER_FINDER: LazyLock<Finder<'static>> =
+    LazyLock::new(|| Finder::new(b"You are the newly spawned agent."));
 static COMPACT_TYPE_FIELD_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""type":"#));
 static TYPE_KEY_FINDER: LazyLock<Finder<'static>> = LazyLock::new(|| Finder::new(br#""type""#));
@@ -31,6 +37,7 @@ static INPUT_TOKENS_FIELD_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""input_tokens":"#));
 static PROMPT_TOKENS_FIELD_FINDER: LazyLock<Finder<'static>> =
     LazyLock::new(|| Finder::new(br#""prompt_tokens":"#));
+const FORK_REPLAY_GRACE_MS: i64 = 1_000;
 
 #[derive(Clone, Copy)]
 enum CodexLineKind {
@@ -54,6 +61,7 @@ pub(super) fn visit_codex_session_file(
     let mut current_model_is_fallback = false;
     let fallback_timestamp = file_modified_timestamp(path);
     let mut pending_fallback_events = PendingFallbackEvents::default();
+    let mut fork_activation = ForkActivationState::default();
 
     loop {
         line.clear();
@@ -63,6 +71,9 @@ pub(super) fn visit_codex_session_file(
         if bytes_read == 0 {
             break;
         }
+        if FORK_BOOTSTRAP_MARKER_FINDER.find(&line).is_some() {
+            fork_activation.saw_bootstrap_marker = true;
+        }
         let Some(line_kind) = codex_line_usage_kind(&line) else {
             continue;
         };
@@ -71,6 +82,15 @@ pub(super) fn visit_codex_session_file(
                 let Ok(value) = serde_json::from_slice::<CodexSessionLogEntry<'_>>(&line) else {
                     continue;
                 };
+                if handle_codex_fork_activation(
+                    &session_id,
+                    &value,
+                    &mut fork_activation,
+                    &mut current_model,
+                    &mut current_model_is_fallback,
+                ) {
+                    continue;
+                }
                 visit_codex_session_entry(
                     &session_id,
                     value,
@@ -108,6 +128,115 @@ pub(super) fn visit_codex_session_file(
 
     pending_fallback_events.flush(&mut visit)?;
     Ok(())
+}
+
+#[derive(Default)]
+struct ForkActivationState {
+    is_forked: bool,
+    activated: bool,
+    saw_bootstrap_marker: bool,
+    session_start_ms: Option<TimestampMs>,
+    last_model_before_activation: Option<String>,
+}
+
+fn handle_codex_fork_activation(
+    session_id: &str,
+    value: &CodexSessionLogEntry<'_>,
+    state: &mut ForkActivationState,
+    current_model: &mut Option<String>,
+    current_model_is_fallback: &mut bool,
+) -> bool {
+    if value.entry_type.as_deref() == Some("session_meta") {
+        if let Some(payload) = value.payload.as_ref() {
+            if is_continuation_snapshot(
+                session_id,
+                non_empty_cow_string(payload.id.as_ref()).as_deref(),
+            ) {
+                state.is_forked = true;
+                state.activated = false;
+                return true;
+            }
+            state.is_forked = payload
+                .forked_from_id
+                .as_ref()
+                .is_some_and(|id| !id.trim().is_empty());
+        }
+        state.session_start_ms = codex_session_timestamp_ms(value.timestamp.as_ref());
+        return true;
+    }
+
+    if !state.is_forked || state.activated {
+        return false;
+    }
+
+    if let Some(model) = value.payload.as_ref().and_then(codex_model_from_payload) {
+        state.last_model_before_activation = Some(model);
+    }
+
+    let is_child_user_message = state.saw_bootstrap_marker
+        && value.entry_type.as_deref() == Some("event_msg")
+        && value
+            .payload
+            .as_ref()
+            .and_then(|payload| payload.payload_type.as_deref())
+            == Some("user_message");
+
+    let is_after_initial_replay = state
+        .session_start_ms
+        .zip(codex_session_timestamp_ms(value.timestamp.as_ref()))
+        .is_some_and(|(session_start, entry_timestamp)| {
+            entry_timestamp.duration_since(session_start) > FORK_REPLAY_GRACE_MS
+        });
+
+    if is_child_user_message || is_after_initial_replay {
+        state.activated = true;
+        if current_model.is_none() {
+            *current_model = state.last_model_before_activation.clone();
+        }
+        if current_model.is_some() {
+            *current_model_is_fallback = false;
+        }
+        return false;
+    }
+
+    true
+}
+
+fn is_continuation_snapshot(session_id: &str, metadata_session_id: Option<&str>) -> bool {
+    let Some(metadata_session_id) = metadata_session_id else {
+        return false;
+    };
+    let Some(file_session_id) = rollout_session_id(session_id) else {
+        return false;
+    };
+    file_session_id != metadata_session_id
+}
+
+fn rollout_session_id(session_id: &str) -> Option<&str> {
+    let file_name = session_id.rsplit('/').next().unwrap_or(session_id);
+    if !file_name.starts_with("rollout-") {
+        return None;
+    }
+    let candidate = file_name.rsplit('-').take(5).collect::<Vec<_>>();
+    if candidate.len() != 5 {
+        return None;
+    }
+    let start = file_name.len() - candidate.iter().map(|part| part.len()).sum::<usize>() - 4;
+    let value = &file_name[start..];
+    is_uuid_like(value).then_some(value)
+}
+
+fn is_uuid_like(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    bytes.len() == 36
+        && bytes[8] == b'-'
+        && bytes[13] == b'-'
+        && bytes[18] == b'-'
+        && bytes[23] == b'-'
+        && bytes
+            .iter()
+            .enumerate()
+            .all(|(index, byte)| matches!(index, 8 | 13 | 18 | 23) || byte.is_ascii_hexdigit())
 }
 
 #[derive(Default)]
@@ -320,9 +449,15 @@ fn visit_codex_exec_usage_event(
 }
 
 fn codex_line_usage_kind(line: &[u8]) -> Option<CodexLineKind> {
+    if SESSION_META_TYPE_FINDER.find(line).is_some() {
+        return Some(CodexLineKind::Session);
+    }
     let has_event_msg = EVENT_MSG_TYPE_FINDER.find(line).is_some();
     let has_token_count = has_event_msg && TOKEN_COUNT_TYPE_FINDER.find(line).is_some();
-    if TURN_CONTEXT_TYPE_FINDER.find(line).is_some() || has_token_count {
+    if TURN_CONTEXT_TYPE_FINDER.find(line).is_some()
+        || has_token_count
+        || (has_event_msg && USER_MESSAGE_TYPE_FINDER.find(line).is_some())
+    {
         return Some(CodexLineKind::Session);
     }
     let has_compact_type = COMPACT_TYPE_FIELD_FINDER.find(line).is_some();
@@ -394,6 +529,25 @@ fn codex_session_timestamp(value: Option<&CodexTimestamp<'_>>) -> Option<String>
             (!text.is_empty()).then(|| text.to_string())
         }
         CodexTimestamp::Number(_) => normalize_codex_timestamp(value),
+    }
+}
+
+fn codex_session_timestamp_ms(value: Option<&CodexTimestamp<'_>>) -> Option<TimestampMs> {
+    match value? {
+        CodexTimestamp::String(text) => {
+            let text = text.trim();
+            (!text.is_empty())
+                .then_some(text)
+                .and_then(crate::parse_ts_timestamp)
+        }
+        CodexTimestamp::Number(raw) => {
+            let millis = if *raw > 10_000_000_000 {
+                *raw
+            } else {
+                raw.checked_mul(1_000)?
+            };
+            Some(TimestampMs::from_millis(millis.min(i64::MAX as u64) as i64))
+        }
     }
 }
 

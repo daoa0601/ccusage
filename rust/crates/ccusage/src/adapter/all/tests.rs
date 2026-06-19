@@ -251,6 +251,102 @@ fn merges_same_agent_daily_rows_into_one_monthly_breakdown() {
 }
 
 #[test]
+fn aggregates_rows_by_provider_without_time_buckets() {
+    let rows = aggregate_rows_by_provider(vec![
+        AllRow {
+            period: "2026-01-02".to_string(),
+            agent: "claude",
+            models_used: vec!["claude-sonnet-4-20250514".to_string()],
+            input_tokens: 10,
+            output_tokens: 5,
+            cache_creation_tokens: 1,
+            cache_read_tokens: 2,
+            total_tokens: 18,
+            total_cost: 0.01,
+            metadata: None,
+            metadata_agents: Some(vec!["claude"]),
+            agent_breakdowns: None,
+            model_breakdowns: vec![ModelBreakdown {
+                model_name: "claude-sonnet-4-20250514".to_string(),
+                input_tokens: 10,
+                output_tokens: 5,
+                cache_creation_tokens: 1,
+                cache_read_tokens: 2,
+                cost: 0.01,
+                ..ModelBreakdown::default()
+            }],
+        },
+        AllRow {
+            period: "2026-01-03".to_string(),
+            agent: "claude",
+            models_used: vec!["claude-opus-4-20250514".to_string()],
+            input_tokens: 20,
+            output_tokens: 10,
+            cache_creation_tokens: 2,
+            cache_read_tokens: 4,
+            total_tokens: 36,
+            total_cost: 0.05,
+            metadata: None,
+            metadata_agents: Some(vec!["claude"]),
+            agent_breakdowns: None,
+            model_breakdowns: vec![ModelBreakdown {
+                model_name: "claude-opus-4-20250514".to_string(),
+                input_tokens: 20,
+                output_tokens: 10,
+                cache_creation_tokens: 2,
+                cache_read_tokens: 4,
+                cost: 0.05,
+                ..ModelBreakdown::default()
+            }],
+        },
+        AllRow {
+            period: "2026-01-02".to_string(),
+            agent: "codex",
+            models_used: vec!["gpt-5".to_string()],
+            input_tokens: 30,
+            output_tokens: 15,
+            cache_creation_tokens: 0,
+            cache_read_tokens: 6,
+            total_tokens: 51,
+            total_cost: 0.02,
+            metadata: None,
+            metadata_agents: Some(vec!["codex"]),
+            agent_breakdowns: None,
+            model_breakdowns: vec![ModelBreakdown {
+                model_name: "gpt-5".to_string(),
+                input_tokens: 30,
+                output_tokens: 15,
+                cache_creation_tokens: 0,
+                cache_read_tokens: 6,
+                cost: 0.02,
+                ..ModelBreakdown::default()
+            }],
+        },
+    ]);
+
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].agent, "claude");
+    assert_eq!(rows[0].period, "all");
+    assert_eq!(rows[0].input_tokens, 30);
+    assert_eq!(rows[0].output_tokens, 15);
+    assert_eq!(rows[0].cache_creation_tokens, 3);
+    assert_eq!(rows[0].cache_read_tokens, 6);
+    assert_eq!(rows[0].total_tokens, 54);
+    assert_eq!(rows[0].metadata_agents, Some(vec!["claude"]));
+    assert_eq!(
+        rows[0].models_used,
+        vec![
+            "claude-opus-4-20250514".to_string(),
+            "claude-sonnet-4-20250514".to_string(),
+        ]
+    );
+    assert_eq!(rows[0].model_breakdowns.len(), 2);
+    assert_eq!(rows[1].agent, "codex");
+    assert_eq!(rows[1].period, "all");
+    assert_eq!(rows[1].total_tokens, 51);
+}
+
+#[test]
 fn renders_all_report_json_with_period_and_agent_metadata() {
     let rows = vec![AllRow {
         period: "2026-01-02".to_string(),

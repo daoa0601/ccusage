@@ -69,6 +69,10 @@ pub(super) enum CodexTimestamp<'a> {
 pub(super) struct CodexPayload<'a> {
     #[serde(rename = "type", borrow, default)]
     pub(super) payload_type: Option<Cow<'a, str>>,
+    #[serde(borrow, default)]
+    pub(super) id: Option<Cow<'a, str>>,
+    #[serde(rename = "forked_from_id", borrow, default)]
+    pub(super) forked_from_id: Option<Cow<'a, str>>,
     #[serde(
         borrow,
         default,

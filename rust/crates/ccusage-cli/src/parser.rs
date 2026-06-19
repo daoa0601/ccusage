@@ -5,8 +5,8 @@ use crate::help::{print_help_and_exit, print_version_and_exit};
 use crate::types::{OPENCODE_AGENT_REPORTS, STANDARD_AGENT_REPORTS};
 use crate::{
     normalize_date_bound, AgentCommandArgs, AgentReportKind, BlocksArgs, Cli, CliConfig,
-    CodexSpeed, Command, CostMode, CostSource, DailyArgs, NoConfig, SessionArgs, SharedArgs,
-    SortOrder, StatuslineArgs, VisualBurnRate, WeekDay, WeeklyArgs,
+    CodexSpeed, Command, CostMode, CostSource, DailyArgs, McpArgs, McpTransport, NoConfig,
+    SessionArgs, SharedArgs, SortOrder, StatuslineArgs, VisualBurnRate, WeekDay, WeeklyArgs,
 };
 
 const TOOL_FILTER_AGENTS: &[&str] = &[
@@ -148,6 +148,31 @@ fn parse_command(
             }
             Ok(Command::Blocks(args))
         }
+        "mcp" => {
+            let mut args = McpArgs {
+                shared,
+                transport: McpTransport::Stdio,
+                port: 8080,
+            };
+            while parser.peek().is_some() {
+                if parse_shared_arg_for_command(parser, &mut args.shared)? {
+                    continue;
+                }
+                match parser.next_flag()?.as_str() {
+                    "-t" | "--type" => {
+                        args.transport = parse_mcp_transport(&parser.value_for("--type")?)?
+                    }
+                    "-p" | "--port" => {
+                        args.port = parser
+                            .value_for("--port")?
+                            .parse()
+                            .map_err(|_| "Invalid value for --port".to_string())?
+                    }
+                    flag => return Err(format!("Unknown mcp option '{flag}'")),
+                }
+            }
+            Ok(Command::Mcp(args))
+        }
         "statusline" => {
             let mut args = StatuslineArgs::default();
             config.apply_statusline_args(&mut args);
@@ -187,6 +212,7 @@ fn parse_command(
                     "-z" | "--timezone" => args.timezone = Some(parser.value_for("--timezone")?),
                     "--config" => args.config = Some(PathBuf::from(parser.value_for("--config")?)),
                     "--debug" => args.debug = true,
+                    "--update-pricing" => args.update_pricing = true,
                     flag => return Err(format!("Unknown statusline option '{flag}'")),
                 }
             }
@@ -608,12 +634,14 @@ fn parse_shared_arg(parser: &mut ArgParser, shared: &mut SharedArgs) -> Result<(
         "--single-thread" => shared.single_thread = true,
         "--tool" => shared.tool_filter = parse_tool_filter(&parser.value_for("--tool")?)?,
         "--by-model" => shared.by_model = true,
+        "--by-provider" => shared.by_provider = true,
+        "--update-pricing" => shared.update_pricing = true,
         flag => return Err(format!("Unknown option '{flag}'")),
     }
     Ok(())
 }
 
-fn parse_tool_filter(value: &str) -> Result<Option<Vec<String>>, String> {
+pub fn parse_tool_filter(value: &str) -> Result<Option<Vec<String>>, String> {
     let tools = value
         .split(',')
         .map(|tool| tool.trim().to_lowercase())
@@ -657,6 +685,7 @@ fn is_command(arg: &str) -> bool {
             | "session"
             | "blocks"
             | "statusline"
+            | "mcp"
             | "claude"
             | "codex"
             | "opencode"
@@ -809,6 +838,8 @@ fn option_takes_value(arg: &str) -> bool {
             | "--speed"
             | "--pi-path"
             | "--open-claw-path"
+            | "--type"
+            | "--port"
     )
 }
 
@@ -901,6 +932,8 @@ fn is_shared_flag(arg: &str) -> bool {
             | "--single-thread"
             | "--tool"
             | "--by-model"
+            | "--by-provider"
+            | "--update-pricing"
     )
 }
 
@@ -960,6 +993,14 @@ fn parse_cost_source(value: &str) -> Result<CostSource, String> {
         "cc" => Ok(CostSource::Cc),
         "both" => Ok(CostSource::Both),
         _ => Err(format!("Invalid cost source '{value}'")),
+    }
+}
+
+fn parse_mcp_transport(value: &str) -> Result<McpTransport, String> {
+    match value {
+        "stdio" => Ok(McpTransport::Stdio),
+        "http" => Ok(McpTransport::Http),
+        _ => Err(format!("Invalid MCP transport '{value}'")),
     }
 }
 

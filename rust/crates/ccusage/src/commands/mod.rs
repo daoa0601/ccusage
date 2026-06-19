@@ -7,7 +7,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+use serde_json::{json, Value};
 
 use crate::pricing::PricingMap;
 use crate::{
@@ -23,7 +23,8 @@ use crate::{
     load_daily_summaries, load_entries, print_active_block_detail, print_blocks_table,
     print_json_or_jq, print_usage_table, session_summary_json, sort_blocks, sort_summaries,
     summarize_by_key, summarize_summaries_by_bucket, summary_json, total_usage_tokens, totals_json,
-    utc_now, wants_json, BucketKind, Color, Context, Result, SessionAccumulator, TimestampMs,
+    utc_now, wants_json, Align, BucketKind, Color, Context, Result, SessionAccumulator, SimpleTable,
+    TimestampMs, UsageSummary,
     DEFAULT_RECENT_DAYS, DEFAULT_SESSION_DURATION_HOURS, MILLIS_PER_DAY, MILLIS_PER_MINUTE,
 };
 
@@ -37,6 +38,13 @@ pub(crate) fn run_daily(args: DailyArgs) -> Result<()> {
     filter_and_sort_summaries(&mut rows, &shared, |row| {
         row.date.as_deref().unwrap_or_default()
     });
+
+    // Match the TS Claude-only daily path: an empty dataset prints a bare `[]`
+    // under --json (instances mode still emits the wrapped projects object).
+    if rows.is_empty() && wants_json(&shared) && !args.instances {
+        println!("[]");
+        return Ok(());
+    }
 
     if wants_json(&shared) {
         if args.instances && rows.iter().any(|row| row.project.is_some()) {
@@ -146,6 +154,36 @@ pub(crate) fn run_session(args: SessionArgs) -> Result<()> {
         return run_session_id(&id, &shared);
     }
 
+    let session_shared = {
+        let mut session_shared = shared.clone();
+        session_shared.order = SortOrder::Desc;
+        session_shared
+    };
+    let rows = session_report_rows(&shared)?;
+
+    if wants_json(&session_shared) {
+        let output = json!({
+            "sessions": rows.iter().map(session_summary_json).collect::<Vec<_>>(),
+            "totals": totals_json(&rows),
+        });
+        print_json_or_jq(output, session_shared.jq.as_deref())?;
+        return Ok(());
+    }
+
+    print_usage_table(
+        "Claude Code Token Usage Report - By Session",
+        "Session",
+        &rows,
+        &session_shared,
+        false,
+        None,
+    )?;
+    Ok(())
+}
+
+/// Aggregates entries into per-session summaries (shared by the `session`
+/// command and the MCP `session` tool). Forces descending cost order like TS.
+pub(crate) fn session_report_rows(shared: &SharedArgs) -> Result<Vec<UsageSummary>> {
     let mut session_shared = shared.clone();
     session_shared.order = SortOrder::Desc;
     let entries = load_entries(&session_shared, None)?;
@@ -192,25 +230,7 @@ pub(crate) fn run_session(args: SessionArgs) -> Result<()> {
         SortOrder::Asc => a.total_cost.total_cmp(&b.total_cost),
         SortOrder::Desc => b.total_cost.total_cmp(&a.total_cost),
     });
-
-    if wants_json(&session_shared) {
-        let output = json!({
-            "sessions": rows.iter().map(session_summary_json).collect::<Vec<_>>(),
-            "totals": totals_json(&rows),
-        });
-        print_json_or_jq(output, session_shared.jq.as_deref())?;
-        return Ok(());
-    }
-
-    print_usage_table(
-        "Claude Code Token Usage Report - By Session",
-        "Session",
-        &rows,
-        &session_shared,
-        false,
-        None,
-    )?;
-    Ok(())
+    Ok(rows)
 }
 
 fn run_session_id(id: &str, shared: &SharedArgs) -> Result<()> {
@@ -261,6 +281,48 @@ fn run_session_id(id: &str, shared: &SharedArgs) -> Result<()> {
     println!("Total Cost: {}", format_currency(total_cost));
     println!("Total Tokens: {}", format_number(total_tokens));
     println!("Total Entries: {}", session_entries.len());
+    println!();
+
+    let mut table = SimpleTable::new(
+        vec![
+            "Timestamp",
+            "Model",
+            "Input",
+            "Output",
+            "Cache Create",
+            "Cache Read",
+            "Cost (USD)",
+        ],
+        vec![
+            Align::Left,
+            Align::Left,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+            Align::Right,
+        ],
+        crate::terminal_style(shared),
+    )
+    .with_terminal_width(crate::terminal_width());
+    for entry in &session_entries {
+        table.push(vec![
+            entry.data.timestamp.clone(),
+            entry.data
+                .message
+                .model
+                .clone()
+                .unwrap_or_else(|| "unknown".to_string()),
+            format_number(entry.data.message.usage.input_tokens),
+            format_number(entry.data.message.usage.output_tokens),
+            format_number(entry.data.message.usage.cache_creation_input_tokens),
+            format_number(entry.data.message.usage.cache_read_input_tokens),
+            format_currency(entry.data.cost_usd.unwrap_or(0.0)),
+        ]);
+    }
+    table
+        .print()
+        .context("failed to print session table")?;
     Ok(())
 }
 
@@ -292,16 +354,24 @@ pub(crate) fn run_blocks(args: BlocksArgs) -> Result<()> {
         .max()
         .unwrap_or(0);
 
+    if args.active && blocks.is_empty() {
+        if wants_json(&shared) {
+            let output = json!({
+                "blocks": [],
+                "message": "No active block",
+            });
+            print_json_or_jq(output, shared.jq.as_deref())?;
+        } else {
+            println!("No active session block found.");
+        }
+        return Ok(());
+    }
+
     if wants_json(&shared) {
         let output = json!({
             "blocks": blocks.iter().map(|block| block_json(block, args.token_limit.as_deref(), max_tokens)).collect::<Vec<_>>(),
         });
         print_json_or_jq(output, shared.jq.as_deref())?;
-        return Ok(());
-    }
-
-    if args.active && blocks.is_empty() {
-        println!("No active session block found.");
         return Ok(());
     }
     if args.active && blocks.len() == 1 {
@@ -310,6 +380,67 @@ pub(crate) fn run_blocks(args: BlocksArgs) -> Result<()> {
     }
     print_blocks_table(&blocks, args.token_limit.as_deref(), max_tokens, &shared)?;
     Ok(())
+}
+
+// In-process report builders used by the MCP server. They produce the same JSON
+// the corresponding commands print, without touching stdout.
+
+pub(crate) fn build_daily_json(shared: &SharedArgs) -> Result<Value> {
+    let mut rows = load_daily_summaries(shared, None, false)?;
+    filter_and_sort_summaries(&mut rows, shared, |row| {
+        row.date.as_deref().unwrap_or_default()
+    });
+    Ok(json!({
+        "daily": rows.iter().map(summary_json).collect::<Vec<_>>(),
+        "totals": totals_json(&rows),
+    }))
+}
+
+pub(crate) fn build_monthly_json(shared: &SharedArgs) -> Result<Value> {
+    let entries = load_entries(shared, None)?;
+    let mut daily = summarize_by_key(
+        &entries,
+        |entry| entry.date.clone(),
+        |key| (key.to_string(), None),
+    )?;
+    filter_and_sort_summaries(&mut daily, shared, |row| {
+        row.date.as_deref().unwrap_or_default()
+    });
+    let mut buckets = summarize_summaries_by_bucket(&daily, BucketKind::Monthly, WeekDay::Sunday);
+    sort_summaries(&mut buckets, &shared.order, |row| {
+        row.month.as_deref().unwrap_or_default()
+    });
+    Ok(json!({
+        "monthly": buckets.iter().map(summary_json).collect::<Vec<_>>(),
+        "totals": totals_json(&buckets),
+    }))
+}
+
+pub(crate) fn build_session_json(shared: &SharedArgs) -> Result<Value> {
+    let rows = session_report_rows(shared)?;
+    Ok(json!({
+        "sessions": rows.iter().map(session_summary_json).collect::<Vec<_>>(),
+        "totals": totals_json(&rows),
+    }))
+}
+
+pub(crate) fn build_blocks_json(shared: &SharedArgs, session_length: f64) -> Result<Value> {
+    let entries = load_entries(shared, None)?;
+    let mut blocks = identify_session_blocks(entries, session_length);
+    filter_blocks_by_date(&mut blocks, shared);
+    sort_blocks(&mut blocks, &shared.order);
+    let max_tokens = blocks
+        .iter()
+        .filter(|block| !block.is_gap && !block.is_active)
+        .map(|block| block.token_counts.total())
+        .max()
+        .unwrap_or(0);
+    Ok(json!({
+        "blocks": blocks
+            .iter()
+            .map(|block| block_json(block, None, max_tokens))
+            .collect::<Vec<_>>(),
+    }))
 }
 
 pub(crate) fn run_statusline(args: StatuslineArgs) -> Result<()> {
@@ -330,6 +461,7 @@ pub(crate) fn run_statusline(args: StatuslineArgs) -> Result<()> {
         serde_json::from_str(stdin.trim()).context("Invalid input format")?;
     let shared = SharedArgs {
         offline: args.offline && !args.no_offline,
+        update_pricing: args.update_pricing,
         ..SharedArgs::default()
     };
     let cache_enabled = args.cache && !args.no_cache;
@@ -475,6 +607,7 @@ fn render_statusline(
                 Path::new(&hook.transcript_path),
                 hook.model.id.as_deref(),
                 shared.offline,
+                shared.update_pricing,
             )
             .map(|context| (context.total_input_tokens, context.context_window_size))
         })
@@ -568,6 +701,7 @@ fn calculate_context_tokens_from_transcript(
     path: &Path,
     model_id: Option<&str>,
     offline: bool,
+    force_refresh: bool,
 ) -> Option<HookContext> {
     let content = fs::read_to_string(path).ok()?;
     for line in content.lines().rev() {
@@ -603,7 +737,7 @@ fn calculate_context_tokens_from_transcript(
             .unwrap_or_default();
         let context_window_size = model_id
             .filter(|model_id| !model_id.is_empty())
-            .and_then(|model_id| PricingMap::load(offline, false).context_limit(model_id))
+            .and_then(|model_id| PricingMap::load(offline, force_refresh, false).context_limit(model_id))
             .unwrap_or(200_000);
         return Some(HookContext {
             total_input_tokens: input_tokens + cache_creation + cache_read,
@@ -804,7 +938,7 @@ mod tests {
         });
 
         let context =
-            calculate_context_tokens_from_transcript(&fixture.path("transcript.jsonl"), None, true)
+            calculate_context_tokens_from_transcript(&fixture.path("transcript.jsonl"), None, true, false)
                 .unwrap();
 
         assert_eq!(context.total_input_tokens, 2150);
@@ -821,6 +955,7 @@ mod tests {
             &fixture.path("transcript.jsonl"),
             Some("anthropic.claude-3-5-sonnet-20240620-v1:0"),
             true,
+            false,
         )
         .unwrap();
 

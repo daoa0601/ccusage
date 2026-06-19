@@ -22,6 +22,7 @@ Useful variants:
 ```bash
 ccusage daily --tool all --offline
 ccusage daily --tool all --json
+ccusage daily --tool all --by-provider
 ccusage session --tool all
 ccusage monthly --tool all
 ```

@@ -47,6 +47,7 @@ pub(crate) fn load_entries_from_directory(
     } else {
         Some(PricingMap::load(
             shared.offline,
+            shared.update_pricing,
             crate::log_level() != Some(0),
         ))
     };

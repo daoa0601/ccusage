@@ -1,11 +1,13 @@
 use serde_json::{json, Value};
 
+#[cfg(test)]
+use crate::{cli::SortOrder, sort_summaries};
 use crate::{
-    cli::{AgentReportKind, SortOrder, WeekDay},
-    sort_summaries, summarize_by_key, summarize_summaries_by_bucket, totals_json, BucketKind,
-    LoadedEntry, Result,
+    cli::{AgentReportKind, WeekDay},
+    summarize_by_key, summarize_summaries_by_bucket, totals_json, BucketKind, LoadedEntry, Result,
 };
 
+#[cfg(test)]
 pub(crate) fn report_json(
     entries: &[LoadedEntry],
     kind: AgentReportKind,
@@ -16,7 +18,7 @@ pub(crate) fn report_json(
     Ok(report_from_rows(&rows, kind))
 }
 
-fn report_from_rows(rows: &[crate::UsageSummary], kind: AgentReportKind) -> Value {
+pub(crate) fn report_from_rows(rows: &[crate::UsageSummary], kind: AgentReportKind) -> Value {
     let rows_json = rows
         .iter()
         .map(|row| agent_summary_json(row, kind, false))

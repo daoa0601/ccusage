@@ -7,7 +7,7 @@ use crate::{
     cli::{SharedArgs, SortOrder, WeekDay},
     cli_error,
     fast::{FxHashMap, FxHashSet},
-    format_date, format_naive_date, parse_iso_date, LoadedEntry, ModelBreakdown, Result,
+    format_date, format_naive_date, parse_iso_date, IsoDate, LoadedEntry, ModelBreakdown, Result,
     TimestampMs, TokenCounts, UsageSummary,
 };
 
@@ -167,7 +167,10 @@ pub(crate) fn summarize_summaries_by_bucket(
         };
         let bucket = match kind {
             BucketKind::Monthly => date.get(..7).unwrap_or(date).to_string(),
-            BucketKind::Weekly => week_start(date, start).unwrap_or_else(|| date.to_string()),
+            BucketKind::Weekly => {
+                let start_date = week_start(date, start).unwrap_or_else(|| date.to_string());
+                iso_week_label(&start_date).unwrap_or(start_date)
+            }
         };
         groups.entry(bucket).or_default().push(row);
     }
@@ -296,6 +299,20 @@ pub(crate) fn week_start(date: &str, start: WeekDay) -> Option<String> {
     let day = date.weekday_from_sunday() as i64;
     let shift = (day - start_num + 7) % 7;
     Some(format_naive_date(date.checked_add_days(-shift)?))
+}
+
+/// Converts a `YYYY-MM-DD` string into an ISO week label `YYYY-Www` using the
+/// nearest-Thursday algorithm, matching the TS agent-adapter weekly reports.
+pub(crate) fn iso_week_label(date: &str) -> Option<String> {
+    let day = parse_iso_date(date)?;
+    // ISO weekday with Monday = 1 .. Sunday = 7.
+    let iso_weekday = (day.weekday_from_sunday() as i64 + 6) % 7 + 1;
+    let thursday = day.checked_add_days(4 - iso_weekday)?;
+    let year = thursday.year;
+    let day_of_year =
+        thursday.days_since_epoch() - IsoDate::from_ymd(year, 1, 1)?.days_since_epoch() + 1;
+    let week = (day_of_year - 1) / 7 + 1;
+    Some(format!("{year}-W{week:02}"))
 }
 
 #[cfg(test)]

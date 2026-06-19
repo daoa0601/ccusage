@@ -1,6 +1,6 @@
 ---
 source: crates/ccusage/src/config_schema.rs
-assertion_line: 1257
+assertion_line: 1267
 expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n    definition_properties(&schema, \"ccusage-config\"),\n    \"rootAdditionalProperties\":\n    schema[\"definitions\"][\"ccusage-config\"][\"additionalProperties\"],\n    \"defaults\": schema_node(&schema, &[\"defaults\"]), \"rootDaily\":\n    schema_node(&schema, &[\"commands\", \"daily\"]), \"claudeStatusline\":\n    schema_node(&schema, &[\"claude\", \"commands\", \"statusline\"]),\n    \"codexDefaults\": schema_node(&schema, &[\"codex\", \"defaults\"]),\n    \"opencodeWeekly\":\n    schema_node(&schema, &[\"opencode\", \"commands\", \"weekly\"]), \"piDefaults\":\n    schema_node(&schema, &[\"pi\", \"defaults\"]), \"openclawDefaults\":\n    schema_node(&schema, &[\"openclaw\", \"defaults\"]),\n})"
 ---
 {
@@ -106,6 +106,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Show per-model cost breakdown.",
         "type": "boolean"
       },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
+        "type": "boolean"
+      },
       "color": {
         "description": "Enable colored output.",
         "markdownDescription": "Enable colored output.",
@@ -198,6 +208,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Timezone for date grouping (IANA).",
         "type": "string"
       },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+        "type": "string"
+      },
       "until": {
         "description": "Filter until date (inclusive).",
         "markdownDescription": "Filter until date (inclusive).",
@@ -221,6 +236,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "default": false,
         "description": "Show per-model cost breakdown.",
         "markdownDescription": "Show per-model cost breakdown.",
+        "type": "boolean"
+      },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
         "type": "boolean"
       },
       "color": {
@@ -315,6 +340,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Timezone for date grouping (IANA).",
         "type": "string"
       },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+        "type": "string"
+      },
       "until": {
         "description": "Filter until date (inclusive).",
         "markdownDescription": "Filter until date (inclusive).",
@@ -334,6 +364,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
       "breakdown": {
         "description": "Show per-model cost breakdown.",
         "markdownDescription": "Show per-model cost breakdown.",
+        "type": "boolean"
+      },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
         "type": "boolean"
       },
       "color": {
@@ -422,6 +462,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Timezone for date grouping (IANA).",
         "type": "string"
       },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+        "type": "string"
+      },
       "until": {
         "description": "Filter until date (inclusive).",
         "markdownDescription": "Filter until date (inclusive).",
@@ -443,6 +488,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "default": false,
         "description": "Show per-model cost breakdown.",
         "markdownDescription": "Show per-model cost breakdown.",
+        "type": "boolean"
+      },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
         "type": "boolean"
       },
       "color": {
@@ -537,6 +592,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Timezone for date grouping (IANA).",
         "type": "string"
       },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+        "type": "string"
+      },
       "until": {
         "description": "Filter until date (inclusive).",
         "markdownDescription": "Filter until date (inclusive).",
@@ -556,6 +616,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
       "breakdown": {
         "description": "Show per-model cost breakdown.",
         "markdownDescription": "Show per-model cost breakdown.",
+        "type": "boolean"
+      },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
         "type": "boolean"
       },
       "color": {
@@ -644,6 +714,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
         "markdownDescription": "Timezone for date grouping (IANA).",
         "type": "string"
       },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+        "type": "string"
+      },
       "until": {
         "description": "Filter until date (inclusive).",
         "markdownDescription": "Filter until date (inclusive).",
@@ -664,6 +739,16 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
       "breakdown": {
         "description": "Show per-model cost breakdown.",
         "markdownDescription": "Show per-model cost breakdown.",
+        "type": "boolean"
+      },
+      "byModel": {
+        "description": "Split multi-tool report rows by model.",
+        "markdownDescription": "Split multi-tool report rows by model.",
+        "type": "boolean"
+      },
+      "byProvider": {
+        "description": "Collapse multi-tool report rows by provider.",
+        "markdownDescription": "Collapse multi-tool report rows by provider.",
         "type": "boolean"
       },
       "color": {
@@ -760,6 +845,11 @@ expression: "json!({\n    \"rootRef\": schema[\"$ref\"], \"rootProperties\":\n  
       "timezone": {
         "description": "Timezone for date grouping (IANA).",
         "markdownDescription": "Timezone for date grouping (IANA).",
+        "type": "string"
+      },
+      "tool": {
+        "description": "Agent sources to include (`all`, or a comma-separated list).",
+        "markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
         "type": "string"
       },
       "until": {

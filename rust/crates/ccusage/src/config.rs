@@ -454,6 +454,18 @@ fn apply_shared_options(shared: &mut SharedArgs, options: SharedOptions) {
     if let Some(single_thread) = options.single_thread {
         shared.single_thread = single_thread;
     }
+    if let Some(by_model) = options.by_model {
+        shared.by_model = by_model;
+    }
+    if let Some(by_provider) = options.by_provider {
+        shared.by_provider = by_provider;
+    }
+    if let Some(tool) = options.tool {
+        match crate::cli::parse_tool_filter(&tool) {
+            Ok(filter) => shared.tool_filter = filter,
+            Err(error) => eprintln!("WARN  Invalid config \"tool\": {error}"),
+        }
+    }
 }
 
 impl From<ConfigCostMode> for CostMode {

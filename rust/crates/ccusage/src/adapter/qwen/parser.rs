@@ -27,6 +27,7 @@ pub(super) fn load_entries(shared: &SharedArgs) -> Result<Vec<LoadedEntry>> {
     } else {
         Some(PricingMap::load(
             shared.offline,
+            shared.update_pricing,
             crate::log_level() != Some(0),
         ))
     };

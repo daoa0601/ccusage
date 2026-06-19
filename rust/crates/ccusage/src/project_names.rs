@@ -123,6 +123,19 @@ fn is_windows_users_path(project: &str) -> bool {
 }
 
 pub(crate) fn short_model_name(model: &str) -> String {
+    // Preserve the "[pi] " prefix used by the pi-agent adapter.
+    if let Some(rest) = model.strip_prefix("[pi] ") {
+        return format!("[pi] {}", short_model_name(rest));
+    }
+    // anthropic/claude-opus-4.5 -> opus-4.5 (dot-notation versions without a
+    // date suffix; hyphenated variants fall through to the date-strip path).
+    if let Some(rest) = model.strip_prefix("anthropic/claude-") {
+        if let Some((name, version)) = rest.split_once('-') {
+            if !version.is_empty() && version.chars().all(|c| c.is_ascii_digit() || c == '.') {
+                return format!("{name}-{version}");
+            }
+        }
+    }
     let model = model
         .strip_prefix("anthropic/claude-")
         .or_else(|| model.strip_prefix("claude-"))
@@ -153,6 +166,21 @@ mod tests {
         assert_eq!(
             format_project_name("-Users-alice-ccusage", &aliases),
             "ccusage"
+        );
+    }
+
+    #[test]
+    fn shortens_pi_and_dot_notation_model_names_like_typescript() {
+        assert_eq!(short_model_name("[pi] claude-opus-4-5"), "[pi] opus-4-5");
+        assert_eq!(
+            short_model_name("[pi] anthropic/claude-opus-4.5"),
+            "[pi] opus-4.5"
+        );
+        assert_eq!(short_model_name("anthropic/claude-opus-4.5"), "opus-4.5");
+        // hyphenated date-suffixed names still go through the date-drop path.
+        assert_eq!(
+            short_model_name("anthropic/claude-opus-4-6-20251001"),
+            "opus-4-6"
         );
     }
 }

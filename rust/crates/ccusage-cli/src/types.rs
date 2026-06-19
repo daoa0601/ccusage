@@ -13,6 +13,7 @@ pub enum Command {
     Session(SessionArgs),
     Blocks(BlocksArgs),
     Statusline(StatuslineArgs),
+    Mcp(McpArgs),
     Codex(AgentCommandArgs),
     OpenCode(AgentCommandArgs),
     Amp(AgentCommandArgs),
@@ -50,6 +51,8 @@ pub struct SharedArgs {
     pub single_thread: bool,
     pub tool_filter: Option<Vec<String>>,
     pub by_model: bool,
+    pub by_provider: bool,
+    pub update_pricing: bool,
 }
 
 impl SharedArgs {
@@ -110,6 +113,7 @@ pub struct StatuslineArgs {
     pub timezone: Option<String>,
     pub config: Option<PathBuf>,
     pub debug: bool,
+    pub update_pricing: bool,
 }
 
 #[derive(Clone)]
@@ -119,6 +123,20 @@ pub struct AgentCommandArgs {
     pub pi_path: Option<String>,
     pub open_claw_path: Option<String>,
     pub codex_speed: CodexSpeed,
+}
+
+#[derive(Clone)]
+pub struct McpArgs {
+    pub shared: SharedArgs,
+    pub transport: McpTransport,
+    pub port: u16,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum McpTransport {
+    #[default]
+    Stdio,
+    Http,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -165,6 +183,7 @@ impl Default for StatuslineArgs {
             timezone: None,
             config: None,
             debug: false,
+            update_pricing: false,
         }
     }
 }

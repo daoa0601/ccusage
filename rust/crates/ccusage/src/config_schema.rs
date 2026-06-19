@@ -325,6 +325,12 @@ pub(crate) struct SharedOptions {
     pub(crate) compact: Option<bool>,
     /// Disable parallel file processing.
     pub(crate) single_thread: Option<bool>,
+    /// Agent sources to include (`all`, or a comma-separated list).
+    pub(crate) tool: Option<String>,
+    /// Split multi-tool report rows by model.
+    pub(crate) by_model: Option<bool>,
+    /// Collapse multi-tool report rows by provider.
+    pub(crate) by_provider: Option<bool>,
 }
 
 #[derive(Debug, Default, Deserialize, JsonSchema)]
@@ -534,6 +540,9 @@ impl SharedOptions {
             all: bool_option(map, "all"),
             compact: bool_option(map, "compact"),
             single_thread: bool_option(map, "singleThread"),
+            tool: string_option(map, "tool"),
+            by_model: bool_option(map, "byModel"),
+            by_provider: bool_option(map, "byProvider"),
         }
     }
 }
@@ -924,6 +933,8 @@ mod tests {
         let shared = [
             "all",
             "breakdown",
+            "byModel",
+            "byProvider",
             "color",
             "compact",
             "debug",
@@ -938,6 +949,7 @@ mod tests {
             "since",
             "singleThread",
             "timezone",
+            "tool",
             "until",
         ];
 

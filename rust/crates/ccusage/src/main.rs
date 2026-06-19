@@ -11,10 +11,13 @@ mod date_utils;
 mod fast;
 mod home;
 mod logger;
+mod mcp;
 mod output;
 mod pricing;
+mod pricing_cache;
 mod progress;
 mod project_names;
+mod report_cache;
 mod summary;
 mod types;
 mod utils;
@@ -130,6 +133,7 @@ fn main() -> Result<()> {
         Some(Command::Session(args)) => commands::run_session(args),
         Some(Command::Blocks(args)) => commands::run_blocks(args),
         Some(Command::Statusline(args)) => commands::run_statusline(args),
+        Some(Command::Mcp(args)) => mcp::run(args),
         Some(Command::Codex(args)) => adapter::codex::run(args),
         Some(Command::OpenCode(args)) => adapter::opencode::run(args),
         Some(Command::Amp(args)) => adapter::amp::run(args),

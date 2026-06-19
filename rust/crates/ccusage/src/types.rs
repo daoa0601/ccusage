@@ -70,7 +70,7 @@ impl TokenCounts {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ModelBreakdown {
     pub(crate) model_name: String,
@@ -79,9 +79,11 @@ pub(crate) struct ModelBreakdown {
     pub(crate) cache_creation_tokens: u64,
     pub(crate) cache_read_tokens: u64,
     #[serde(skip_serializing)]
+    #[serde(default)]
     pub(crate) extra_total_tokens: u64,
     pub(crate) cost: f64,
     #[serde(skip_serializing)]
+    #[serde(default)]
     pub(crate) missing_pricing: bool,
 }
 
@@ -117,7 +119,8 @@ pub(crate) struct CodexRawUsage {
     pub(crate) total_tokens: u64,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct CodexTokenUsageEvent {
     pub(crate) session_id: String,
     pub(crate) timestamp: String,
@@ -191,6 +194,83 @@ impl UsageSummary {
             + self.cache_creation_tokens
             + self.cache_read_tokens
             + self.extra_total_tokens
+    }
+
+    pub(crate) fn into_cache(self) -> CachedUsageSummary {
+        CachedUsageSummary {
+            date: self.date,
+            month: self.month,
+            week: self.week,
+            session_id: self.session_id,
+            project_path: self.project_path,
+            last_activity: self.last_activity,
+            input_tokens: self.input_tokens,
+            output_tokens: self.output_tokens,
+            cache_creation_tokens: self.cache_creation_tokens,
+            cache_read_tokens: self.cache_read_tokens,
+            extra_total_tokens: self.extra_total_tokens,
+            total_cost: self.total_cost,
+            credits: self.credits,
+            message_count: self.message_count,
+            models_used: self.models_used,
+            model_breakdowns: self.model_breakdowns,
+            project: self.project,
+            versions: self.versions,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CachedUsageSummary {
+    pub(crate) date: Option<String>,
+    pub(crate) month: Option<String>,
+    pub(crate) week: Option<String>,
+    pub(crate) session_id: Option<String>,
+    pub(crate) project_path: Option<String>,
+    pub(crate) last_activity: Option<String>,
+    pub(crate) input_tokens: u64,
+    pub(crate) output_tokens: u64,
+    pub(crate) cache_creation_tokens: u64,
+    pub(crate) cache_read_tokens: u64,
+    pub(crate) extra_total_tokens: u64,
+    pub(crate) total_cost: f64,
+    pub(crate) credits: Option<f64>,
+    pub(crate) message_count: Option<u64>,
+    pub(crate) models_used: Vec<String>,
+    pub(crate) model_breakdowns: Vec<ModelBreakdown>,
+    pub(crate) project: Option<String>,
+    pub(crate) versions: Option<Vec<String>>,
+}
+
+impl CachedUsageSummary {
+    pub(crate) fn into_summary(self) -> UsageSummary {
+        UsageSummary {
+            date: self.date,
+            month: self.month,
+            week: self.week,
+            session_id: self.session_id,
+            project_path: self.project_path,
+            last_activity: self.last_activity,
+            input_tokens: self.input_tokens,
+            output_tokens: self.output_tokens,
+            cache_creation_tokens: self.cache_creation_tokens,
+            cache_read_tokens: self.cache_read_tokens,
+            extra_total_tokens: self.extra_total_tokens,
+            total_cost: self.total_cost,
+            credits: self.credits,
+            message_count: self.message_count,
+            models_used: self.models_used,
+            model_breakdowns: self.model_breakdowns,
+            project: self.project,
+            versions: self.versions,
+        }
+    }
+}
+
+impl From<UsageSummary> for CachedUsageSummary {
+    fn from(summary: UsageSummary) -> Self {
+        summary.into_cache()
     }
 }
 

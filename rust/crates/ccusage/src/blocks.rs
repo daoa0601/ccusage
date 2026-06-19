@@ -425,11 +425,14 @@ pub(crate) fn print_active_block_detail(
     let now = utc_now();
     let elapsed = now.duration_since(block.start_time) / MILLIS_PER_MINUTE;
     let remaining = block.end_time.duration_since(now) / MILLIS_PER_MINUTE;
-    println!("Block Started:   {}", format_utc_second(block.start_time));
     println!(
-        "Time Elapsed:    {}h {}m",
-        elapsed / 60,
-        elapsed.rem_euclid(60)
+        "Block Started:   {} ({})",
+        color(shared, format_utc_second(block.start_time), Color::Cyan),
+        color(
+            shared,
+            format!("{}h {}m ago", elapsed / 60, elapsed.rem_euclid(60)),
+            Color::Yellow,
+        )
     );
     println!(
         "Time Remaining:  {}",
