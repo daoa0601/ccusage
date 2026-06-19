@@ -76,17 +76,15 @@ jobs:
       matrix:
         include:
           - name: build-linux-arm64
-            os: blacksmith-12vcpu-macos-26
+            os: blacksmith-32vcpu-ubuntu-2404-arm
             platform: linux
             arch: arm64
             binary: result/bin/ccusage
-            builder: apple-container
           - name: build-linux-x64
             os: blacksmith-32vcpu-ubuntu-2404
             platform: linux
             arch: x64
             binary: result/bin/ccusage
-            builder: nix
           - name: build-mac-arm64
             os: blacksmith-12vcpu-macos-26
             platform: darwin
@@ -106,14 +104,12 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: ./.github/actions/build-linux-native-package
-        if: matrix.platform == 'linux' && matrix.builder == 'nix'
+        if: matrix.platform == 'linux'
         with:
           arch: ${{ matrix.arch }}
           binary: ${{ matrix.binary }}
           nix-github-token: ${{ github.event_name != 'pull_request' }}
           cache-scope: ${{ matrix.name }}
-      - uses: ./.github/actions/build-linux-arm64-on-macos
-        if: matrix.builder == 'apple-container'
       - uses: ./.github/actions/build-macos-nix-native-package
         if: matrix.platform == 'darwin'
         with:
