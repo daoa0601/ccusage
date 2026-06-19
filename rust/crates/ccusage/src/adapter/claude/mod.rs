@@ -74,7 +74,11 @@ fn load_entries_inner(
     let pricing = if shared.mode == CostMode::Display {
         None
     } else {
-        Some(PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0)))
+        Some(PricingMap::load(
+            shared.offline,
+            shared.update_pricing,
+            log_level() != Some(0),
+        ))
     };
     let tz = parse_tz(shared.timezone.as_deref());
     let mode = shared.mode;

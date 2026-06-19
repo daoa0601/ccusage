@@ -114,9 +114,9 @@ fn parse_command(
     default_session_duration_hours: f64,
 ) -> Result<Command, String> {
     match command {
-        "daily" => parse_all_command(parser, shared, AgentReportKind::Daily, config),
+        "daily" => parse_root_daily_command(parser, shared, config),
         "monthly" => parse_all_command(parser, shared, AgentReportKind::Monthly, config),
-        "weekly" => parse_all_command(parser, shared, AgentReportKind::Weekly, config),
+        "weekly" => parse_root_weekly_command(parser, shared, config),
         "session" => parse_top_level_session_command(parser, shared, config),
         "blocks" => {
             let mut args = BlocksArgs {
@@ -178,8 +178,14 @@ fn parse_command(
             config.apply_statusline_args(&mut args);
             while parser.peek().is_some() {
                 match parser.next_flag()?.as_str() {
-                    "-O" | "--offline" => args.offline = true,
-                    "--no-offline" => args.no_offline = true,
+                    "-O" | "--offline" => {
+                        args.offline = true;
+                        args.no_offline = false;
+                    }
+                    "--no-offline" => {
+                        args.offline = false;
+                        args.no_offline = true;
+                    }
                     "-B" | "--visual-burn-rate" => {
                         args.visual_burn_rate =
                             parse_visual_burn_rate(&parser.value_for("--visual-burn-rate")?)?
@@ -297,6 +303,101 @@ fn parse_command(
         "openclaw" => parse_openclaw_command(parser, shared, config),
         _ => Err(format!("Unknown command '{command}'")),
     }
+}
+
+fn parse_root_daily_command(
+    parser: &mut ArgParser,
+    shared: SharedArgs,
+    config: &dyn CliConfig,
+) -> Result<Command, String> {
+    let mut args = DailyArgs {
+        shared,
+        instances: false,
+        project: None,
+        project_aliases: None,
+    };
+    config.apply_daily_args(&mut args);
+    let mut uses_daily_options =
+        args.instances || args.project.is_some() || args.project_aliases.is_some();
+
+    while parser.peek().is_some() {
+        if matches!(parser.peek(), Some("--all")) {
+            parser.next();
+            continue;
+        }
+        if parse_shared_arg_for_command(parser, &mut args.shared)? {
+            continue;
+        }
+        match parser.next_flag()?.as_str() {
+            "-i" | "--instances" => {
+                args.instances = true;
+                uses_daily_options = true;
+            }
+            "-p" | "--project" => {
+                args.project = Some(parser.value_for("--project")?);
+                uses_daily_options = true;
+            }
+            "--project-aliases" => {
+                args.project_aliases = Some(parser.value_for("--project-aliases")?);
+                uses_daily_options = true;
+            }
+            flag => return Err(format!("Unknown daily option '{flag}'")),
+        }
+    }
+
+    if uses_daily_options {
+        return Ok(Command::Daily(args));
+    }
+
+    Ok(Command::All(AgentCommandArgs {
+        shared: args.shared,
+        kind: AgentReportKind::Daily,
+        pi_path: None,
+        open_claw_path: None,
+        codex_speed: CodexSpeed::Auto,
+    }))
+}
+
+fn parse_root_weekly_command(
+    parser: &mut ArgParser,
+    shared: SharedArgs,
+    config: &dyn CliConfig,
+) -> Result<Command, String> {
+    let mut args = WeeklyArgs {
+        shared,
+        start_of_week: WeekDay::Sunday,
+    };
+    config.apply_weekly_args(&mut args);
+    let mut uses_weekly_options = args.start_of_week != WeekDay::Sunday;
+
+    while parser.peek().is_some() {
+        if matches!(parser.peek(), Some("--all")) {
+            parser.next();
+            continue;
+        }
+        if parse_shared_arg_for_command(parser, &mut args.shared)? {
+            continue;
+        }
+        match parser.next_flag()?.as_str() {
+            "-w" | "--start-of-week" => {
+                args.start_of_week = parse_week_day(&parser.value_for("--start-of-week")?)?;
+                uses_weekly_options = true;
+            }
+            flag => return Err(format!("Unknown weekly option '{flag}'")),
+        }
+    }
+
+    if uses_weekly_options {
+        return Ok(Command::Weekly(args));
+    }
+
+    Ok(Command::All(AgentCommandArgs {
+        shared: args.shared,
+        kind: AgentReportKind::Weekly,
+        pi_path: None,
+        open_claw_path: None,
+        codex_speed: CodexSpeed::Auto,
+    }))
 }
 
 fn parse_all_command(
@@ -623,8 +724,14 @@ fn parse_shared_arg(parser: &mut ArgParser, shared: &mut SharedArgs) -> Result<(
         }
         "-o" | "--order" => shared.order = parse_sort_order(&parser.value_for("--order")?)?,
         "-b" | "--breakdown" => shared.breakdown = true,
-        "-O" | "--offline" => shared.offline = true,
-        "--no-offline" => shared.no_offline = true,
+        "-O" | "--offline" => {
+            shared.offline = true;
+            shared.no_offline = false;
+        }
+        "--no-offline" => {
+            shared.offline = false;
+            shared.no_offline = true;
+        }
         "--color" => shared.color = true,
         "--no-color" => shared.no_color = true,
         "-z" | "--timezone" => shared.timezone = Some(parser.value_for("--timezone")?),

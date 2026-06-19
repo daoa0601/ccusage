@@ -343,9 +343,9 @@ fn print_codex_session_table(
     for (period, group) in groups {
         let cost = calculate_group_cost(group, pricing, speed);
         let input_tokens = non_cached_input_tokens(group.input_tokens, group.cached_input_tokens);
-        let (directory, file_name) = period
-            .rfind('/')
-            .map_or(("", period.as_str()), |index| (&period[..index], &period[index + 1..]));
+        let (directory, file_name) = period.rfind('/').map_or(("", period.as_str()), |index| {
+            (&period[..index], &period[index + 1..])
+        });
         let last_activity = group.last_activity.clone().unwrap_or_default();
         let date = last_activity.get(..10).unwrap_or("").to_string();
         table.push(vec![

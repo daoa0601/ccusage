@@ -196,8 +196,8 @@ impl<'de> Deserialize<'de> for CodexRawUsage {
             reasoning_output_tokens: reasoning,
             total_tokens: fields
                 .total_tokens
-                .filter(|total| *total > 0 || input + output + reasoning == 0)
-                .unwrap_or(input + output + reasoning),
+                .filter(|total| *total > 0 || input + output == 0)
+                .unwrap_or(input + output),
         })
     }
 }
@@ -383,4 +383,22 @@ where
     }
 
     deserializer.deserialize_any(OptionalU64Visitor)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::CodexRawUsage;
+
+    #[test]
+    fn codex_usage_total_fallback_excludes_reasoning_tokens() {
+        let usage = serde_json::from_str::<CodexRawUsage>(
+            r#"{"input_tokens":100,"output_tokens":50,"reasoning_output_tokens":20}"#,
+        )
+        .unwrap();
+
+        assert_eq!(usage.input_tokens, 100);
+        assert_eq!(usage.output_tokens, 50);
+        assert_eq!(usage.reasoning_output_tokens, 20);
+        assert_eq!(usage.total_tokens, 150);
+    }
 }

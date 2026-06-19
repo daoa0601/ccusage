@@ -52,10 +52,10 @@ fn read_codex_session_files_with_index(
     #[cfg(test)]
     {
         let _ = single_thread;
-        return files
+        files
             .iter()
             .flat_map(|file| read_codex_session_file(sessions_dir, file))
-            .collect();
+            .collect()
     }
 
     #[cfg(not(test))]
@@ -376,7 +376,7 @@ mod tests {
         assert_eq!(events[2].input_tokens, 9);
         assert_eq!(events[2].output_tokens, 4);
         assert_eq!(events[2].reasoning_output_tokens, 1);
-        assert_eq!(events[2].total_tokens, 14);
+        assert_eq!(events[2].total_tokens, 13);
     }
 
     #[test]

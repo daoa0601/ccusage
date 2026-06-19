@@ -30,7 +30,11 @@ use crate::CodexTokenUsageEvent;
 
 pub(crate) fn run(args: AgentCommandArgs) -> Result<()> {
     let shared = args.shared;
-    let pricing = PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0));
+    let pricing = PricingMap::load(
+        shared.offline,
+        shared.update_pricing,
+        log_level() != Some(0),
+    );
     let groups = load_groups(&shared, args.kind)?;
     let speed = resolve_codex_speed(args.codex_speed);
     if wants_json(&shared) {
@@ -42,7 +46,11 @@ pub(crate) fn run(args: AgentCommandArgs) -> Result<()> {
 
 /// In-process Codex report (JSON only, no stdout) for the MCP codex tools.
 pub(crate) fn build_report_json(shared: &SharedArgs, kind: AgentReportKind) -> Result<Value> {
-    let pricing = PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0));
+    let pricing = PricingMap::load(
+        shared.offline,
+        shared.update_pricing,
+        log_level() != Some(0),
+    );
     let groups = load_groups(shared, kind)?;
     let speed = resolve_codex_speed(CodexSpeed::Auto);
     Ok(report_from_groups(&groups, kind, &pricing, speed))

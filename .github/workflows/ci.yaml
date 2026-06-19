@@ -166,7 +166,7 @@ jobs:
     needs:
       - changes
       - build-native-packages
-    if: needs.changes.outputs.code-changed == 'true'
+    if: needs.changes.outputs.code-changed == 'true' && github.repository == 'ccusage/ccusage'
     permissions:
       actions: read
       contents: read

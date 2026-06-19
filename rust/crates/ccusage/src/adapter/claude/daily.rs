@@ -39,7 +39,11 @@ pub(super) fn load_daily_summaries_inner(
     let pricing = if shared.mode == CostMode::Display {
         None
     } else {
-        Some(PricingMap::load(shared.offline, shared.update_pricing, log_level() != Some(0)))
+        Some(PricingMap::load(
+            shared.offline,
+            shared.update_pricing,
+            log_level() != Some(0),
+        ))
     };
     let tz = parse_tz(shared.timezone.as_deref());
     let mode = shared.mode;
@@ -391,6 +395,7 @@ fn push_deduped_daily_entry(
     if let Some((_, Some(index))) = dedupe_lookup {
         if should_replace_deduped_daily_entry(&entry, &deduped[index]) {
             deduped[index] = entry;
+            index_deduped_daily_entry(deduped_indexes, &deduped[index], index);
         }
         return;
     }
@@ -399,9 +404,7 @@ fn push_deduped_daily_entry(
     deduped.push(entry);
     if let Some((hash, None)) = dedupe_lookup {
         push_deduped_daily_index(deduped_indexes, hash, index);
-        if let Some(message_id) = deduped[index].message_id.as_deref() {
-            push_deduped_daily_index(deduped_indexes, usage_dedupe_hash(message_id, None), index);
-        }
+        index_deduped_daily_entry(deduped_indexes, &deduped[index], index);
     }
 }
 
@@ -438,6 +441,21 @@ fn push_deduped_daily_index(
     let indexes = deduped_indexes.entry(hash).or_default();
     if !indexes.contains(&index) {
         indexes.push(index);
+    }
+}
+
+fn index_deduped_daily_entry(
+    deduped_indexes: &mut FxHashMap<u64, SmallIndexVec>,
+    entry: &DailyLoadedEntry,
+    index: usize,
+) {
+    if let Some(message_id) = entry.message_id.as_deref() {
+        push_deduped_daily_index(
+            deduped_indexes,
+            usage_dedupe_hash(message_id, entry.request_id.as_deref()),
+            index,
+        );
+        push_deduped_daily_index(deduped_indexes, usage_dedupe_hash(message_id, None), index);
     }
 }
 
@@ -570,6 +588,50 @@ mod tests {
         .into_entry();
 
         assert_eq!(data.is_sidechain, Some(true));
+    }
+
+    #[test]
+    fn refreshes_dedupe_indexes_when_parent_replaces_sidechain_replay() {
+        let mut deduped_indexes = Default::default();
+        let mut deduped = Vec::new();
+
+        push_deduped_daily_entry(
+            daily_loaded_entry(DailyEntryFixture {
+                message_id: "msg-parent",
+                request_id: "req-sidechain-replay",
+                is_sidechain: true,
+                cache_read_tokens: 50_000,
+                output_tokens: 10,
+            }),
+            &mut deduped_indexes,
+            &mut deduped,
+        );
+        push_deduped_daily_entry(
+            daily_loaded_entry(DailyEntryFixture {
+                message_id: "msg-parent",
+                request_id: "req-parent",
+                is_sidechain: false,
+                cache_read_tokens: 20,
+                output_tokens: 10,
+            }),
+            &mut deduped_indexes,
+            &mut deduped,
+        );
+        push_deduped_daily_entry(
+            daily_loaded_entry(DailyEntryFixture {
+                message_id: "msg-parent",
+                request_id: "req-parent",
+                is_sidechain: false,
+                cache_read_tokens: 20,
+                output_tokens: 10,
+            }),
+            &mut deduped_indexes,
+            &mut deduped,
+        );
+
+        assert_eq!(deduped.len(), 1);
+        assert_eq!(deduped[0].request_id.as_deref(), Some("req-parent"));
+        assert!(!deduped[0].is_sidechain.unwrap());
     }
 
     struct DailyEntryFixture {

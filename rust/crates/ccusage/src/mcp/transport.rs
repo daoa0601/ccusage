@@ -38,7 +38,9 @@ pub(crate) fn serve_stdio(args: &McpArgs) -> Result<()> {
 pub(crate) fn serve_http(args: &McpArgs) -> Result<()> {
     let address = format!("127.0.0.1:{}", args.port);
     let listener = TcpListener::bind(&address).map_err(|error| {
-        crate::cli_error(format!("failed to bind MCP HTTP server to {address}: {error}"))
+        crate::cli_error(format!(
+            "failed to bind MCP HTTP server to {address}: {error}"
+        ))
     })?;
     eprintln!("MCP server is running on http://localhost:{}", args.port);
 
@@ -54,11 +56,9 @@ fn handle_http_connection(stream: &mut std::net::TcpStream, args: &McpArgs) -> i
     let (request_line, headers) = read_request_head(&mut reader)?;
     let method = request_line.split_whitespace().next().unwrap_or("");
     let accept = header_value(&headers, "accept").unwrap_or_default();
-    let accepts_json = accept
-        .split(',')
-        .any(|part| {
-            part.trim() == "application/json" || part.trim().starts_with("application/json")
-        });
+    let accepts_json = accept.split(',').any(|part| {
+        part.trim() == "application/json" || part.trim().starts_with("application/json")
+    });
     let accepts_sse = accept
         .split(',')
         .any(|part| part.trim().starts_with("text/event-stream"));
@@ -109,7 +109,9 @@ fn handle_http_connection(stream: &mut std::net::TcpStream, args: &McpArgs) -> i
     write_response(stream, "200 OK", "text/event-stream", &sse)
 }
 
-fn read_request_head(reader: &mut BufReader<std::net::TcpStream>) -> io::Result<(String, Vec<(String, String)>)> {
+fn read_request_head(
+    reader: &mut BufReader<std::net::TcpStream>,
+) -> io::Result<(String, Vec<(String, String)>)> {
     let mut request_line = String::new();
     reader.read_line(&mut request_line)?;
     let mut headers = Vec::new();

@@ -142,23 +142,24 @@ fn handle_tool_call(params: &Value, args: &McpArgs) -> Value {
     }
 
     match name {
-        "daily" | "session" | "monthly" | "blocks" => match claude_shared_from_args(&arguments, args)
-        {
-            Ok(shared) => {
-                let result = match name {
-                    "daily" => build_daily_json(&shared),
-                    "session" => build_session_json(&shared),
-                    "monthly" => build_monthly_json(&shared),
-                    "blocks" => build_blocks_json(&shared, DEFAULT_BLOCK_HOURS),
-                    _ => unreachable!(),
-                };
-                match result {
-                    Ok(value) => ok_text(&value),
-                    Err(_) => fallback_empty(name),
+        "daily" | "session" | "monthly" | "blocks" => {
+            match claude_shared_from_args(&arguments, args) {
+                Ok(shared) => {
+                    let result = match name {
+                        "daily" => build_daily_json(&shared),
+                        "session" => build_session_json(&shared),
+                        "monthly" => build_monthly_json(&shared),
+                        "blocks" => build_blocks_json(&shared, DEFAULT_BLOCK_HOURS),
+                        _ => unreachable!(),
+                    };
+                    match result {
+                        Ok(value) => ok_text(&value),
+                        Err(_) => fallback_empty(name),
+                    }
                 }
+                Err(message) => error_text(&message),
             }
-            Err(message) => error_text(&message),
-        },
+        }
         "codex-daily" | "codex-monthly" => match codex_shared_from_args(&arguments, args) {
             Ok(shared) => {
                 let kind = if name == "codex-daily" {
@@ -255,7 +256,11 @@ mod tests {
 
     #[test]
     fn lists_all_six_tools() {
-        let response = handle_request(&json!({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}), &args()).unwrap();
+        let response = handle_request(
+            &json!({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}),
+            &args(),
+        )
+        .unwrap();
         let names = response["result"]["tools"]
             .as_array()
             .unwrap()
@@ -264,13 +269,24 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(
             names,
-            vec!["daily", "session", "monthly", "blocks", "codex-daily", "codex-monthly"]
+            vec![
+                "daily",
+                "session",
+                "monthly",
+                "blocks",
+                "codex-daily",
+                "codex-monthly"
+            ]
         );
     }
 
     #[test]
     fn initialize_advertises_server_info() {
-        let response = handle_request(&json!({"jsonrpc": "2.0", "id": 7, "method": "initialize"}), &args()).unwrap();
+        let response = handle_request(
+            &json!({"jsonrpc": "2.0", "id": 7, "method": "initialize"}),
+            &args(),
+        )
+        .unwrap();
         assert_eq!(response["id"], 7);
         assert_eq!(response["result"]["serverInfo"]["name"], "ccusage");
         assert!(response["result"]["protocolVersion"].is_string());
@@ -290,7 +306,10 @@ mod tests {
     fn invalid_mode_returns_error() {
         let result = call("daily", json!({"mode": "bogus"}));
         assert_eq!(result["isError"], true);
-        assert!(result["content"][0]["text"].as_str().unwrap().contains("Invalid"));
+        assert!(result["content"][0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("Invalid"));
     }
 
     #[test]

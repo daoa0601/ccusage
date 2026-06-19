@@ -107,9 +107,7 @@ pub(super) fn session_id_from_path(path: &Path) -> String {
 
 fn session_index_path() -> Option<PathBuf> {
     #[cfg(test)]
-    if env::var_os(TEST_ENABLE_SESSION_INDEX_ENV).is_none() {
-        return None;
-    }
+    env::var_os(TEST_ENABLE_SESSION_INDEX_ENV)?;
 
     let cache_home = match env::var_os("XDG_CACHE_HOME") {
         Some(value) if !value.is_empty() => PathBuf::from(value),

@@ -16,9 +16,7 @@ pub(crate) fn run(args: crate::cli::McpArgs) -> Result<()> {
         .map(|paths| paths.is_empty())
         .unwrap_or(true)
     {
-        return Err(crate::cli_error(
-            "No valid Claude data directory found",
-        ));
+        return Err(crate::cli_error("No valid Claude data directory found"));
     }
 
     match args.transport {

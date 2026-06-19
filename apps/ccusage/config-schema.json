@@ -35,6 +35,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -118,6 +128,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -143,6 +158,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -226,6 +251,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -251,6 +281,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -334,6 +374,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -360,6 +405,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -447,6 +502,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -482,6 +542,16 @@
 										"breakdown": {
 											"description": "Show per-model cost breakdown.",
 											"markdownDescription": "Show per-model cost breakdown.",
+											"type": "boolean"
+										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
 											"type": "boolean"
 										},
 										"color": {
@@ -575,6 +645,11 @@
 											"markdownDescription": "Token limit for session block calculations.",
 											"type": "string"
 										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+											"type": "string"
+										},
 										"until": {
 											"description": "Filter until date (inclusive).",
 											"markdownDescription": "Filter until date (inclusive).",
@@ -594,6 +669,16 @@
 										"breakdown": {
 											"description": "Show per-model cost breakdown.",
 											"markdownDescription": "Show per-model cost breakdown.",
+											"type": "boolean"
+										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
 											"type": "boolean"
 										},
 										"color": {
@@ -685,6 +770,11 @@
 											"markdownDescription": "Timezone for date grouping (IANA).",
 											"type": "string"
 										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+											"type": "string"
+										},
 										"until": {
 											"description": "Filter until date (inclusive).",
 											"markdownDescription": "Filter until date (inclusive).",
@@ -706,6 +796,16 @@
 											"default": false,
 											"description": "Show per-model cost breakdown.",
 											"markdownDescription": "Show per-model cost breakdown.",
+											"type": "boolean"
+										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
 											"type": "boolean"
 										},
 										"color": {
@@ -791,6 +891,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -816,6 +921,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -899,6 +1014,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1001,6 +1121,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -1090,6 +1220,11 @@
 											"markdownDescription": "Timezone for date grouping (IANA).",
 											"type": "string"
 										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+											"type": "string"
+										},
 										"until": {
 											"description": "Filter until date (inclusive).",
 											"markdownDescription": "Filter until date (inclusive).",
@@ -1117,6 +1252,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"cache": {
@@ -1275,6 +1420,11 @@
 									"markdownDescription": "Token limit for session block calculations.",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -1315,6 +1465,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -1398,6 +1558,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1423,6 +1588,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -1506,6 +1681,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1531,6 +1711,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -1614,6 +1804,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1640,6 +1835,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -1727,6 +1932,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -1759,6 +1969,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -1838,6 +2058,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1861,6 +2086,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -1940,6 +2175,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -1963,6 +2203,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -2042,6 +2292,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -2066,6 +2321,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -2149,6 +2414,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -2181,6 +2451,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -2274,6 +2554,11 @@
 									"markdownDescription": "Token limit for session block calculations.",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -2293,6 +2578,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -2384,6 +2679,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -2405,6 +2705,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -2490,6 +2800,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -2515,6 +2830,16 @@
 									"markdownDescription": "Show per-model cost breakdown.",
 									"type": "boolean"
 								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
+									"type": "boolean"
+								},
 								"color": {
 									"default": false,
 									"description": "Enable colored output.",
@@ -2598,6 +2923,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -2700,6 +3030,16 @@
 									"markdownDescription": "Show per-model cost breakdown.",
 									"type": "boolean"
 								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
+									"type": "boolean"
+								},
 								"color": {
 									"description": "Enable colored output.",
 									"markdownDescription": "Enable colored output.",
@@ -2789,6 +3129,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -2823,6 +3168,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -2906,6 +3261,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -2931,6 +3291,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3014,6 +3384,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3039,6 +3414,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3122,6 +3507,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3148,6 +3538,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -3235,6 +3635,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -3261,6 +3666,16 @@
 							"default": false,
 							"description": "Show per-model cost breakdown.",
 							"markdownDescription": "Show per-model cost breakdown.",
+							"type": "boolean"
+						},
+						"byModel": {
+							"description": "Split multi-tool report rows by model.",
+							"markdownDescription": "Split multi-tool report rows by model.",
+							"type": "boolean"
+						},
+						"byProvider": {
+							"description": "Collapse multi-tool report rows by provider.",
+							"markdownDescription": "Collapse multi-tool report rows by provider.",
 							"type": "boolean"
 						},
 						"color": {
@@ -3348,6 +3763,11 @@
 							"markdownDescription": "Timezone for date grouping (IANA).",
 							"type": "string"
 						},
+						"tool": {
+							"description": "Agent sources to include (`all`, or a comma-separated list).",
+							"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+							"type": "string"
+						},
 						"until": {
 							"description": "Filter until date (inclusive).",
 							"markdownDescription": "Filter until date (inclusive).",
@@ -3379,6 +3799,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3462,6 +3892,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3487,6 +3922,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3570,6 +4015,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3595,6 +4045,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3678,6 +4138,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3704,6 +4169,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -3789,6 +4264,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -3825,6 +4305,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -3908,6 +4398,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -3933,6 +4428,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4016,6 +4521,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4041,6 +4551,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4124,6 +4644,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4150,6 +4675,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -4235,6 +4770,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -4271,6 +4811,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4354,6 +4904,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4379,6 +4934,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4462,6 +5027,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4487,6 +5057,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4570,6 +5150,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4596,6 +5181,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -4681,6 +5276,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -4717,6 +5317,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4800,6 +5410,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4825,6 +5440,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -4908,6 +5533,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -4933,6 +5563,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5016,6 +5656,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5042,6 +5687,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -5127,6 +5782,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -5163,6 +5823,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5246,6 +5916,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5271,6 +5946,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5354,6 +6039,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5379,6 +6069,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5462,6 +6162,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5488,6 +6193,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -5573,6 +6288,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {
@@ -5609,6 +6329,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5692,6 +6422,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5717,6 +6452,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5800,6 +6545,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5825,6 +6575,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -5908,6 +6668,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -5934,6 +6699,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -6021,6 +6796,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -6053,6 +6833,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -6130,6 +6920,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6153,6 +6948,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -6230,6 +7035,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6253,6 +7063,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -6330,6 +7150,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6354,6 +7179,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -6435,6 +7270,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -6469,6 +7309,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -6552,6 +7402,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6577,6 +7432,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -6660,6 +7525,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6685,6 +7555,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -6768,6 +7648,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6793,6 +7678,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -6876,6 +7771,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -6902,6 +7802,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -6989,6 +7899,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -7021,6 +7936,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -7098,6 +8023,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7121,6 +8051,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -7198,6 +8138,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7221,6 +8166,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"description": "Enable colored output.",
 											"markdownDescription": "Enable colored output.",
@@ -7298,6 +8253,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7322,6 +8282,16 @@
 								"breakdown": {
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -7403,6 +8373,11 @@
 									"markdownDescription": "Timezone for date grouping (IANA).",
 									"type": "string"
 								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
+									"type": "string"
+								},
 								"until": {
 									"description": "Filter until date (inclusive).",
 									"markdownDescription": "Filter until date (inclusive).",
@@ -7437,6 +8412,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -7520,6 +8505,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7545,6 +8535,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -7628,6 +8628,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7653,6 +8658,16 @@
 											"markdownDescription": "Show per-model cost breakdown.",
 											"type": "boolean"
 										},
+										"byModel": {
+											"description": "Split multi-tool report rows by model.",
+											"markdownDescription": "Split multi-tool report rows by model.",
+											"type": "boolean"
+										},
+										"byProvider": {
+											"description": "Collapse multi-tool report rows by provider.",
+											"markdownDescription": "Collapse multi-tool report rows by provider.",
+											"type": "boolean"
+										},
 										"color": {
 											"default": false,
 											"description": "Enable colored output.",
@@ -7736,6 +8751,11 @@
 										"timezone": {
 											"description": "Timezone for date grouping (IANA).",
 											"markdownDescription": "Timezone for date grouping (IANA).",
+											"type": "string"
+										},
+										"tool": {
+											"description": "Agent sources to include (`all`, or a comma-separated list).",
+											"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 											"type": "string"
 										},
 										"until": {
@@ -7762,6 +8782,16 @@
 									"default": false,
 									"description": "Show per-model cost breakdown.",
 									"markdownDescription": "Show per-model cost breakdown.",
+									"type": "boolean"
+								},
+								"byModel": {
+									"description": "Split multi-tool report rows by model.",
+									"markdownDescription": "Split multi-tool report rows by model.",
+									"type": "boolean"
+								},
+								"byProvider": {
+									"description": "Collapse multi-tool report rows by provider.",
+									"markdownDescription": "Collapse multi-tool report rows by provider.",
 									"type": "boolean"
 								},
 								"color": {
@@ -7847,6 +8877,11 @@
 								"timezone": {
 									"description": "Timezone for date grouping (IANA).",
 									"markdownDescription": "Timezone for date grouping (IANA).",
+									"type": "string"
+								},
+								"tool": {
+									"description": "Agent sources to include (`all`, or a comma-separated list).",
+									"markdownDescription": "Agent sources to include (`all`, or a comma-separated list).",
 									"type": "string"
 								},
 								"until": {

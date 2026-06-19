@@ -23,9 +23,9 @@ use crate::{
     load_daily_summaries, load_entries, print_active_block_detail, print_blocks_table,
     print_json_or_jq, print_usage_table, session_summary_json, sort_blocks, sort_summaries,
     summarize_by_key, summarize_summaries_by_bucket, summary_json, total_usage_tokens, totals_json,
-    utc_now, wants_json, Align, BucketKind, Color, Context, Result, SessionAccumulator, SimpleTable,
-    TimestampMs, UsageSummary,
-    DEFAULT_RECENT_DAYS, DEFAULT_SESSION_DURATION_HOURS, MILLIS_PER_DAY, MILLIS_PER_MINUTE,
+    utc_now, wants_json, Align, BucketKind, Color, Context, Result, SessionAccumulator,
+    SimpleTable, TimestampMs, UsageSummary, DEFAULT_RECENT_DAYS, DEFAULT_SESSION_DURATION_HOURS,
+    MILLIS_PER_DAY, MILLIS_PER_MINUTE,
 };
 
 pub(crate) fn run_daily(args: DailyArgs) -> Result<()> {
@@ -308,7 +308,8 @@ fn run_session_id(id: &str, shared: &SharedArgs) -> Result<()> {
     for entry in &session_entries {
         table.push(vec![
             entry.data.timestamp.clone(),
-            entry.data
+            entry
+                .data
                 .message
                 .model
                 .clone()
@@ -320,9 +321,7 @@ fn run_session_id(id: &str, shared: &SharedArgs) -> Result<()> {
             format_currency(entry.data.cost_usd.unwrap_or(0.0)),
         ]);
     }
-    table
-        .print()
-        .context("failed to print session table")?;
+    table.print().context("failed to print session table")?;
     Ok(())
 }
 
@@ -737,7 +736,9 @@ fn calculate_context_tokens_from_transcript(
             .unwrap_or_default();
         let context_window_size = model_id
             .filter(|model_id| !model_id.is_empty())
-            .and_then(|model_id| PricingMap::load(offline, force_refresh, false).context_limit(model_id))
+            .and_then(|model_id| {
+                PricingMap::load(offline, force_refresh, false).context_limit(model_id)
+            })
             .unwrap_or(200_000);
         return Some(HookContext {
             total_input_tokens: input_tokens + cache_creation + cache_read,
@@ -937,9 +938,13 @@ mod tests {
             .join("\n"),
         });
 
-        let context =
-            calculate_context_tokens_from_transcript(&fixture.path("transcript.jsonl"), None, true, false)
-                .unwrap();
+        let context = calculate_context_tokens_from_transcript(
+            &fixture.path("transcript.jsonl"),
+            None,
+            true,
+            false,
+        )
+        .unwrap();
 
         assert_eq!(context.total_input_tokens, 2150);
         assert_eq!(context.context_window_size, 200_000);

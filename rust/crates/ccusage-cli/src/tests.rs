@@ -33,6 +33,10 @@ struct TestConfig {
     shared_since: Option<&'static str>,
     shared_timezone: Option<&'static str>,
     shared_compact: Option<bool>,
+    shared_offline: Option<bool>,
+    daily_instances: Option<bool>,
+    daily_project: Option<&'static str>,
+    daily_project_aliases: Option<&'static str>,
     weekly_start: Option<WeekDay>,
     blocks_active: Option<bool>,
     blocks_token_limit: Option<&'static str>,
@@ -61,6 +65,21 @@ impl CliConfig for TestConfig {
         }
         if let Some(compact) = self.shared_compact {
             shared.compact = compact;
+        }
+        if let Some(offline) = self.shared_offline {
+            shared.offline = offline;
+        }
+    }
+
+    fn apply_daily_args(&self, args: &mut DailyArgs) {
+        if let Some(instances) = self.daily_instances {
+            args.instances = instances;
+        }
+        if let Some(project) = self.daily_project {
+            args.project = Some(project.to_string());
+        }
+        if let Some(project_aliases) = self.daily_project_aliases {
+            args.project_aliases = Some(project_aliases.to_string());
         }
     }
 
@@ -287,6 +306,81 @@ fn parses_by_provider_for_all_agent_report() {
     assert_eq!(args.kind, AgentReportKind::Daily);
     assert!(args.shared.by_provider);
     assert_eq!(args.shared.tool_filter, None);
+}
+
+#[test]
+fn parses_root_daily_report_specific_options() {
+    let cli = parse(&[
+        "ccusage",
+        "daily",
+        "--json",
+        "--instances",
+        "--project",
+        "repo",
+        "--project-aliases",
+        "repo=Repository",
+    ]);
+    let Some(Command::Daily(args)) = cli.command else {
+        panic!("expected daily command");
+    };
+    assert!(args.shared.json);
+    assert!(args.instances);
+    assert_eq!(args.project.as_deref(), Some("repo"));
+    assert_eq!(args.project_aliases.as_deref(), Some("repo=Repository"));
+}
+
+#[test]
+fn parses_root_weekly_report_specific_options() {
+    let cli = parse(&["ccusage", "weekly", "--start-of-week", "monday"]);
+    let Some(Command::Weekly(args)) = cli.command else {
+        panic!("expected weekly command");
+    };
+    assert_eq!(args.start_of_week, WeekDay::Monday);
+}
+
+#[test]
+fn root_report_specific_config_selects_report_commands() {
+    let config = TestConfig {
+        daily_instances: Some(true),
+        daily_project: Some("repo"),
+        weekly_start: Some(WeekDay::Monday),
+        ..TestConfig::default()
+    };
+
+    let cli = parse_with_config(&["ccusage", "daily"], &config);
+    let Some(Command::Daily(args)) = cli.command else {
+        panic!("expected daily command");
+    };
+    assert!(args.instances);
+    assert_eq!(args.project.as_deref(), Some("repo"));
+
+    let cli = parse_with_config(&["ccusage", "weekly"], &config);
+    let Some(Command::Weekly(args)) = cli.command else {
+        panic!("expected weekly command");
+    };
+    assert_eq!(args.start_of_week, WeekDay::Monday);
+}
+
+#[test]
+fn no_offline_updates_effective_shared_offline_flag() {
+    let config = TestConfig {
+        shared_offline: Some(true),
+        ..TestConfig::default()
+    };
+
+    let cli = parse_with_config(&["ccusage", "daily", "--no-offline"], &config);
+    let Some(Command::All(args)) = cli.command else {
+        panic!("expected all-agent command");
+    };
+    assert!(!args.shared.offline);
+    assert!(args.shared.no_offline);
+
+    let cli = parse_with_config(&["ccusage", "daily", "--no-offline", "--offline"], &config);
+    let Some(Command::All(args)) = cli.command else {
+        panic!("expected all-agent command");
+    };
+    assert!(args.shared.offline);
+    assert!(!args.shared.no_offline);
 }
 
 #[test]
