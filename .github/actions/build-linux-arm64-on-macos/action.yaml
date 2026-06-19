@@ -1,0 +1,94 @@
+name: Build Linux ARM64 package on macOS
+description: Build, stage, archive, and upload the Linux ARM64 package with apple/container
+runs:
+  using: composite
+  steps:
+    - name: Restore Linux Nix binary cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ${{ runner.temp }}/nix-linux-arm64-binary-cache
+        key: nix-linux-arm64-apple-container-${{ hashFiles('flake.lock', 'flake.nix', 'default.nix', 'package.nix', 'package.json', 'nix/**/*.nix', 'rust-toolchain.toml', 'rust/Cargo.lock', 'rust/**/Cargo.toml') }}-${{ github.sha }}
+        restore-keys: |
+          nix-linux-arm64-apple-container-${{ hashFiles('flake.lock', 'flake.nix', 'default.nix', 'package.nix', 'package.json', 'nix/**/*.nix', 'rust-toolchain.toml', 'rust/Cargo.lock', 'rust/**/Cargo.toml') }}-
+          nix-linux-arm64-apple-container-
+
+    - name: Install apple/container
+      shell: bash
+      env:
+        CONTAINER_SHA256: 13f45f26da94c354adcbefe1e8f7631e7f126e93c5d4dd6a5a538aa66b4f479d
+        CONTAINER_VERSION: 1.0.0
+      run: |
+        package="$RUNNER_TEMP/container-$CONTAINER_VERSION.pkg"
+        curl --fail --location --retry 3 \
+          --output "$package" \
+          "https://github.com/apple/container/releases/download/$CONTAINER_VERSION/container-$CONTAINER_VERSION-installer-signed.pkg"
+        echo "$CONTAINER_SHA256  $package" | shasum --algorithm 256 --check
+        sudo installer -pkg "$package" -target /
+        container system start
+
+    - name: Build Linux ARM64 static binary
+      shell: bash
+      run: |
+        cache="$RUNNER_TEMP/nix-linux-arm64-binary-cache"
+        output="$RUNNER_TEMP/linux-arm64-output"
+        mkdir -p "$cache" "$output"
+        cat > "$cache/nix-cache-info" <<'EOF'
+        StoreDir: /nix/store
+        WantMassQuery: 1
+        Priority: 30
+        EOF
+
+        started_at=$SECONDS
+        container run --rm \
+          --cpus 12 \
+          --memory 44g \
+          --volume "$GITHUB_WORKSPACE:/workspace" \
+          --volume "$cache:/nix-cache" \
+          --volume "$output:/output" \
+          docker.io/nixos/nix:2.32.8 \
+          sh -lc '
+            set -eu
+            cd /workspace
+            export NIX_CONFIG="experimental-features = nix-command flakes
+            substituters = file:///nix-cache https://cache.nixos.org
+            require-sigs = false"
+            nix build .#ccusage-static --print-build-logs
+            cp result/bin/ccusage /output/ccusage
+            chmod 755 /output/ccusage
+            cargo_artifacts=$(nix build .#packages.aarch64-linux.ccusage-static.passthru.cargoArtifacts --no-link --print-out-paths)
+            nix copy --to file:///nix-cache "$cargo_artifacts"
+          '
+        elapsed=$((SECONDS - started_at))
+        echo "Linux ARM64 build in apple/container: ${elapsed}s" >> "$GITHUB_STEP_SUMMARY"
+
+        rm -f result
+        mkdir -p result/bin
+        mv "$output/ccusage" result/bin/ccusage
+
+    - name: Stop apple/container
+      if: always()
+      shell: bash
+      run: container system stop || true
+
+    - name: Verify Linux binary is static
+      shell: bash
+      run: |
+        file result/bin/ccusage | tee "$RUNNER_TEMP/file.txt"
+        grep -Eiq 'statically linked|static-pie linked' "$RUNNER_TEMP/file.txt"
+
+    - name: Stage native package
+      shell: bash
+      run: |
+        mkdir -p packages/ccusage-linux-arm64/bin
+        cp -f result/bin/ccusage packages/ccusage-linux-arm64/bin/ccusage
+        chmod 755 packages/ccusage-linux-arm64/bin/ccusage
+
+    - name: Archive native package binary
+      shell: bash
+      run: tar -cf ccusage-native-linux-arm64.tar packages/ccusage-linux-arm64/bin
+
+    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ccusage-native-linux-arm64
+        path: ccusage-native-linux-arm64.tar
+        if-no-files-found: error
