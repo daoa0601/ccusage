@@ -20,7 +20,7 @@ use crate::{
 };
 
 use super::{
-    chunk_file_indexes_by_size, has_unsupported_null_field, is_semver_prefix,
+    chunk_file_indexes_by_size, has_unsupported_null_field, is_supported_version,
     paths::{claude_paths, extract_project, usage_files},
     usage_dedupe_hash,
 };
@@ -319,7 +319,7 @@ fn is_valid_daily_usage_entry(data: &DailyUsageEntry) -> bool {
     if data
         .version
         .as_deref()
-        .is_some_and(|version| !is_semver_prefix(version))
+        .is_some_and(|version| !is_supported_version(version))
     {
         return false;
     }
@@ -526,7 +526,7 @@ impl DailyAccumulator {
 mod tests {
     use std::sync::Arc;
 
-    use super::{push_deduped_daily_entry, DailyLoadedEntry};
+    use super::{is_valid_daily_usage_entry, push_deduped_daily_entry, DailyLoadedEntry};
     use crate::TokenUsageRaw;
 
     #[test]
@@ -588,6 +588,17 @@ mod tests {
         .into_entry();
 
         assert_eq!(data.is_sidechain, Some(true));
+    }
+
+    #[test]
+    fn accepts_ncode_unknown_version_daily_usage_entries() {
+        let data = serde_json::from_str::<super::DailyUsageLine>(
+            r#"{"parentUuid":"2552b92a-e274-4655-bebd-544b51693c44","isSidechain":false,"message":{"model":"claude-opus-4-6","id":"msg_bdrk_017eKctTmYXcRx3VFkPTNzo6","type":"message","role":"assistant","content":[],"usage":{"input_tokens":3,"cache_creation_input_tokens":18645,"cache_read_input_tokens":0,"output_tokens":11}},"type":"assistant","uuid":"fc9e98a3-c8b4-4d41-95b3-9f7347e76f38","timestamp":"2026-06-20T11:44:35.754Z","userType":"internal","entrypoint":"cli","cwd":"/Users/daoa/work","sessionId":"ad4d1aed-504c-46c9-aa25-4982f47d4ac2","version":"unknown","gitBranch":"HEAD"}"#,
+        )
+        .unwrap()
+        .into_entry();
+
+        assert!(is_valid_daily_usage_entry(&data));
     }
 
     #[test]

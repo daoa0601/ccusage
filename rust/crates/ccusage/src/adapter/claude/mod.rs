@@ -416,7 +416,7 @@ pub(super) fn is_valid_usage_entry(data: &UsageEntry) -> bool {
     if data
         .version
         .as_deref()
-        .is_some_and(|version| !is_semver_prefix(version))
+        .is_some_and(|version| !is_supported_version(version))
     {
         return false;
     }
@@ -451,6 +451,10 @@ pub(super) fn is_valid_usage_entry(data: &UsageEntry) -> bool {
         return false;
     }
     true
+}
+
+pub(super) fn is_supported_version(value: &str) -> bool {
+    value == "unknown" || is_semver_prefix(value)
 }
 
 pub(super) fn has_unsupported_null_field(line: &[u8]) -> bool {
@@ -559,8 +563,8 @@ mod tests {
     use std::{path::Path, sync::Arc};
 
     use super::{
-        extract_session_parts, has_unsupported_null_field, paths::is_project_path_segment,
-        push_deduped_entry, usage_files,
+        extract_session_parts, has_unsupported_null_field, is_valid_usage_entry,
+        paths::is_project_path_segment, push_deduped_entry, usage_files,
     };
     use crate::{LoadedEntry, TimestampMs, TokenUsageRaw, UsageEntry, UsageMessage};
     use ccusage_test_support::fs_fixture;
@@ -648,6 +652,32 @@ mod tests {
         assert!(!has_unsupported_null_field(
             br#"{"message":{"content":null,"usage":{"input_tokens":0}}}"#
         ));
+    }
+
+    #[test]
+    fn accepts_ncode_unknown_version_usage_entries() {
+        let entry = UsageEntry {
+            session_id: Some("session-a".to_string()),
+            timestamp: "2026-06-20T11:44:35.754Z".to_string(),
+            version: Some("unknown".to_string()),
+            message: UsageMessage {
+                usage: TokenUsageRaw {
+                    input_tokens: 3,
+                    output_tokens: 11,
+                    cache_creation_input_tokens: 18_645,
+                    cache_read_input_tokens: 0,
+                    speed: None,
+                },
+                model: Some("claude-opus-4-6".to_string()),
+                id: Some("msg_bdrk_017eKctTmYXcRx3VFkPTNzo6".to_string()),
+            },
+            cost_usd: None,
+            request_id: None,
+            is_api_error_message: None,
+            is_sidechain: Some(false),
+        };
+
+        assert!(is_valid_usage_entry(&entry));
     }
 
     #[test]
