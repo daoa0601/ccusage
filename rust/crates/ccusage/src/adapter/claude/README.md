@@ -4,9 +4,9 @@ Default data directories:
 
 - `~/.config/claude/projects/`
 - `~/.claude/projects/`
-- `~/.ncode/projects/` for NCode's Claude-compatible transcripts
 
 `CLAUDE_CONFIG_DIR` can specify one path or comma-separated multiple paths. Data from valid directories is combined.
+NCode uses the same raw transcript shape and is loaded by the separate `ncode` adapter from `~/.ncode/projects/` or `NCODE_CONFIG_DIR`.
 
 File shape:
 

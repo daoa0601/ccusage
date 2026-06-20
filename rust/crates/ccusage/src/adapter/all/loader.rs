@@ -4,8 +4,8 @@ use serde_json::{json, Value};
 
 use crate::{
     adapter::{
-        amp, claude, codebuff, codex, copilot, droid, gemini, goose, hermes, kilo, kimi, openclaw,
-        opencode, pi, qwen,
+        amp, claude, codebuff, codex, copilot, droid, gemini, goose, hermes, kilo, kimi, ncode,
+        openclaw, opencode, pi, qwen,
     },
     cli::{AgentReportKind, CodexSpeed, SharedArgs, WeekDay},
     filter_loaded_entries_by_date, json_float, summarize_by_key, summarize_summaries_by_bucket,
@@ -53,12 +53,18 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
         },
         AgentLoadSpec {
             index: 1,
+            agent: "ncode",
+            progress_agent: crate::progress::UsageLoadAgent::NCode,
+            load: Box::new(|| load_ncode_rows(load_kind, &loader_shared)),
+        },
+        AgentLoadSpec {
+            index: 2,
             agent: "codex",
             progress_agent: crate::progress::UsageLoadAgent::Codex,
             load: Box::new(|| load_codex_rows(load_kind, &loader_shared, &pricing)),
         },
         AgentLoadSpec {
-            index: 2,
+            index: 3,
             agent: "opencode",
             progress_agent: crate::progress::UsageLoadAgent::OpenCode,
             load: Box::new(|| {
@@ -72,7 +78,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 3,
+            index: 4,
             agent: "amp",
             progress_agent: crate::progress::UsageLoadAgent::Amp,
             load: Box::new(|| {
@@ -87,7 +93,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 4,
+            index: 5,
             agent: "droid",
             progress_agent: crate::progress::UsageLoadAgent::Droid,
             load: Box::new(|| {
@@ -102,7 +108,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 5,
+            index: 6,
             agent: "codebuff",
             progress_agent: crate::progress::UsageLoadAgent::Codebuff,
             load: Box::new(|| {
@@ -117,7 +123,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 6,
+            index: 7,
             agent: "hermes",
             progress_agent: crate::progress::UsageLoadAgent::Hermes,
             load: Box::new(|| {
@@ -132,7 +138,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 7,
+            index: 8,
             agent: "pi",
             progress_agent: crate::progress::UsageLoadAgent::Pi,
             load: Box::new(|| {
@@ -146,7 +152,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 8,
+            index: 9,
             agent: "goose",
             progress_agent: crate::progress::UsageLoadAgent::Goose,
             load: Box::new(|| {
@@ -161,7 +167,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 9,
+            index: 10,
             agent: "openclaw",
             progress_agent: crate::progress::UsageLoadAgent::OpenClaw,
             load: Box::new(|| {
@@ -175,7 +181,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 10,
+            index: 11,
             agent: "kilo",
             progress_agent: crate::progress::UsageLoadAgent::Kilo,
             load: Box::new(|| {
@@ -190,7 +196,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 11,
+            index: 12,
             agent: "copilot",
             progress_agent: crate::progress::UsageLoadAgent::Copilot,
             load: Box::new(|| {
@@ -205,7 +211,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 12,
+            index: 13,
             agent: "gemini",
             progress_agent: crate::progress::UsageLoadAgent::Gemini,
             load: Box::new(|| {
@@ -220,7 +226,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 13,
+            index: 14,
             agent: "kimi",
             progress_agent: crate::progress::UsageLoadAgent::Kimi,
             load: Box::new(|| {
@@ -235,7 +241,7 @@ pub(super) fn load_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<Al
             }),
         },
         AgentLoadSpec {
-            index: 14,
+            index: 15,
             agent: "qwen",
             progress_agent: crate::progress::UsageLoadAgent::Qwen,
             load: Box::new(|| load_qwen_rows(load_kind, &loader_shared)),
@@ -500,6 +506,26 @@ fn load_claude_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<AgentR
     filter_daily_summaries_by_date(&mut summaries, shared);
     Ok(AgentRows {
         rows: summary_rows("claude", summaries),
+        detected,
+    })
+}
+
+fn load_ncode_rows(kind: AgentReportKind, shared: &SharedArgs) -> Result<AgentRows> {
+    if kind == AgentReportKind::Session {
+        return load_session_capable_summary_agent_rows(
+            "ncode",
+            kind,
+            shared,
+            ncode::load_entries,
+            summarize_entries,
+        );
+    }
+
+    let mut summaries = ncode::load_daily_summaries(shared, None, false)?;
+    let detected = !summaries.is_empty();
+    filter_daily_summaries_by_date(&mut summaries, shared);
+    Ok(AgentRows {
+        rows: summary_rows("ncode", summaries),
         detected,
     })
 }

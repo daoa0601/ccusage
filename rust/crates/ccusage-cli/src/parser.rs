@@ -10,8 +10,8 @@ use crate::{
 };
 
 const TOOL_FILTER_AGENTS: &[&str] = &[
-    "claude", "codex", "opencode", "amp", "droid", "codebuff", "hermes", "pi", "goose", "kilo",
-    "copilot", "gemini", "kimi", "qwen", "openclaw",
+    "claude", "ncode", "codex", "opencode", "amp", "droid", "codebuff", "hermes", "pi", "goose",
+    "kilo", "copilot", "gemini", "kimi", "qwen", "openclaw",
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -225,6 +225,13 @@ fn parse_command(
             Ok(Command::Statusline(args))
         }
         "claude" => parse_claude_command(parser, shared, config, default_session_duration_hours),
+        "ncode" => parse_basic_agent_command(
+            parser,
+            shared,
+            "ncode",
+            STANDARD_AGENT_REPORTS,
+            Command::NCode,
+        ),
         "codex" => parse_codex_command(parser, shared, config),
         "opencode" => parse_basic_agent_command(
             parser,
@@ -794,6 +801,7 @@ fn is_command(arg: &str) -> bool {
             | "statusline"
             | "mcp"
             | "claude"
+            | "ncode"
             | "codex"
             | "opencode"
             | "amp"
@@ -954,6 +962,7 @@ fn is_agent_command(command: &str) -> bool {
     matches!(
         command,
         "claude"
+            | "ncode"
             | "codex"
             | "opencode"
             | "amp"
@@ -979,7 +988,7 @@ fn agent_report_supported(agent: &str, report: &str) -> bool {
         ),
         "codex" => matches!(report, "daily" | "monthly" | "session"),
         "opencode" => matches!(report, "daily" | "weekly" | "monthly" | "session"),
-        "amp" | "droid" | "codebuff" | "hermes" | "pi" | "goose" | "kilo" | "copilot"
+        "ncode" | "amp" | "droid" | "codebuff" | "hermes" | "pi" | "goose" | "kilo" | "copilot"
         | "gemini" | "kimi" | "qwen" | "openclaw" => {
             matches!(report, "daily" | "monthly" | "session")
         }
@@ -990,6 +999,7 @@ fn agent_report_supported(agent: &str, report: &str) -> bool {
 fn agent_display_name(agent: &str) -> &'static str {
     match agent {
         "claude" => "Claude Code",
+        "ncode" => "NCode",
         "codex" => "Codex",
         "opencode" => "OpenCode",
         "amp" => "Amp",

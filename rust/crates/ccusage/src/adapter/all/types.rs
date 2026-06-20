@@ -131,6 +131,7 @@ fn static_agent(agent: &str) -> Option<&'static str> {
     Some(match agent {
         "all" => "all",
         "claude" => "claude",
+        "ncode" => "ncode",
         "codex" => "codex",
         "opencode" => "opencode",
         "amp" => "amp",

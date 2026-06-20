@@ -16,6 +16,7 @@ thread_local! {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum UsageLoadAgent {
     Claude,
+    NCode,
     Codex,
     OpenCode,
     Amp,
@@ -46,6 +47,7 @@ pub(crate) fn should_show_usage_load_progress(json: bool, output_is_tty: bool) -
 fn agent_label(agent: UsageLoadAgent) -> &'static str {
     match agent {
         UsageLoadAgent::Claude => "Claude",
+        UsageLoadAgent::NCode => "NCode",
         UsageLoadAgent::Codex => "Codex",
         UsageLoadAgent::OpenCode => "OpenCode",
         UsageLoadAgent::Amp => "Amp",

@@ -208,6 +208,7 @@ fn command_snapshot(command: Option<Command>) -> Value {
             "debug": args.debug,
         }),
         Some(Command::Codex(args)) => agent_command_snapshot("codex", args),
+        Some(Command::NCode(args)) => agent_command_snapshot("ncode", args),
         Some(Command::OpenCode(args)) => agent_command_snapshot("opencode", args),
         Some(Command::Amp(args)) => agent_command_snapshot("amp", args),
         Some(Command::Droid(args)) => agent_command_snapshot("droid", args),
@@ -503,8 +504,8 @@ fn applies_schema_documented_config_file_options() {
 fn root_help_lists_agent_namespaces_without_nested_commands() {
     let help = help_text();
     let agents = [
-        "claude", "codex", "opencode", "amp", "droid", "codebuff", "hermes", "pi", "goose", "kilo",
-        "copilot", "gemini", "kimi", "qwen", "openclaw",
+        "claude", "ncode", "codex", "opencode", "amp", "droid", "codebuff", "hermes", "pi",
+        "goose", "kilo", "copilot", "gemini", "kimi", "qwen", "openclaw",
     ];
 
     for agent in agents {
@@ -672,6 +673,10 @@ fn snapshots_representative_cli_parse_shapes() {
                 "--project-aliases",
                 "repo=Repository",
             ])),
+        }),
+        json!({
+            "case": "ncode daily",
+            "cli": cli_snapshot(parse(&["ccusage", "ncode", "daily", "--json"])),
         }),
         json!({
             "case": "codex monthly fast",
@@ -886,6 +891,17 @@ fn parses_codex_default_daily_options() {
     let cli = parse(&["ccusage", "codex", "--json", "--since", "20260102"]);
     let Some(Command::Codex(args)) = cli.command else {
         panic!("expected codex command");
+    };
+    assert_eq!(args.kind, AgentReportKind::Daily);
+    assert!(args.shared.json);
+    assert_eq!(args.shared.since.as_deref(), Some("20260102"));
+}
+
+#[test]
+fn parses_ncode_daily_options() {
+    let cli = parse(&["ccusage", "ncode", "--json", "--since", "20260102"]);
+    let Some(Command::NCode(args)) = cli.command else {
+        panic!("expected ncode command");
     };
     assert_eq!(args.kind, AgentReportKind::Daily);
     assert!(args.shared.json);

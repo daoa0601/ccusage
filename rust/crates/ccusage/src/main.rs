@@ -135,6 +135,7 @@ fn main() -> Result<()> {
         Some(Command::Statusline(args)) => commands::run_statusline(args),
         Some(Command::Mcp(args)) => mcp::run(args),
         Some(Command::Codex(args)) => adapter::codex::run(args),
+        Some(Command::NCode(args)) => adapter::ncode::run(args),
         Some(Command::OpenCode(args)) => adapter::opencode::run(args),
         Some(Command::Amp(args)) => adapter::amp::run(args),
         Some(Command::Droid(args)) => adapter::droid::run(args),

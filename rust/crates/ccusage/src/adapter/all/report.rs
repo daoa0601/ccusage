@@ -485,6 +485,7 @@ fn agent_label(agent: &str) -> &str {
     match agent {
         "all" => "All",
         "claude" => "Claude",
+        "ncode" => "NCode",
         "codex" => "Codex",
         "opencode" => "OpenCode",
         "amp" => "Amp",

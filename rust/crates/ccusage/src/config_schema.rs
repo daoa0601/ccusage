@@ -18,6 +18,8 @@ pub(crate) struct CcusageConfig {
     pub(crate) commands: Option<RootCommandsConfig>,
     /// Claude Code configuration.
     pub(crate) claude: Option<ClaudeConfig>,
+    /// NCode configuration.
+    pub(crate) ncode: Option<NCodeConfig>,
     /// Codex configuration.
     pub(crate) codex: Option<CodexConfig>,
     /// OpenCode configuration.
@@ -75,6 +77,21 @@ pub(crate) struct ClaudeCommandsConfig {
     pub(crate) session: Option<SharedOptions>,
     pub(crate) blocks: Option<BlocksOptions>,
     pub(crate) statusline: Option<StatuslineOptions>,
+}
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct NCodeConfig {
+    pub(crate) defaults: Option<SharedOptions>,
+    pub(crate) commands: Option<NCodeCommandsConfig>,
+}
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct NCodeCommandsConfig {
+    pub(crate) daily: Option<SharedOptions>,
+    pub(crate) monthly: Option<SharedOptions>,
+    pub(crate) session: Option<SharedOptions>,
 }
 
 #[derive(Debug, Default, Deserialize, JsonSchema)]
@@ -1055,8 +1072,8 @@ mod tests {
             "ccusage-config",
             &[
                 "$schema", "amp", "claude", "codebuff", "codex", "commands", "copilot", "defaults",
-                "gemini", "goose", "hermes", "kilo", "kimi", "opencode", "openclaw", "pi", "qwen",
-                "droid",
+                "droid", "gemini", "goose", "hermes", "kilo", "kimi", "ncode", "opencode",
+                "openclaw", "pi", "qwen",
             ],
         );
         assert!(
@@ -1105,6 +1122,13 @@ mod tests {
                     "monthly": {
                         "speed": "standard",
                         "since": "20260101"
+                    }
+                }
+            },
+            "ncode": {
+                "commands": {
+                    "daily": {
+                        "json": true
                     }
                 }
             },

@@ -11,9 +11,32 @@ use crate::{cli_error, fast::FxHashSet, home, Result};
 use crate::{parse_ts_timestamp, TimestampMs};
 
 pub(crate) fn claude_paths() -> Result<Vec<PathBuf>> {
+    config_paths(
+        "CLAUDE_CONFIG_DIR",
+        "Claude",
+        &[
+            |_home, xdg| xdg.join("claude"),
+            |home, _| home.join(".claude"),
+        ],
+    )
+}
+
+pub(crate) fn ncode_paths() -> Result<Vec<PathBuf>> {
+    config_paths(
+        "NCODE_CONFIG_DIR",
+        "NCode",
+        &[|home, _| home.join(".ncode")],
+    )
+}
+
+fn config_paths(
+    env_name: &str,
+    source_name: &str,
+    defaults: &[fn(&Path, &Path) -> PathBuf],
+) -> Result<Vec<PathBuf>> {
     let mut paths = Vec::new();
     let mut seen = FxHashSet::default();
-    if let Ok(env_paths) = env::var("CLAUDE_CONFIG_DIR") {
+    if let Ok(env_paths) = env::var(env_name) {
         for raw in env_paths
             .split(',')
             .map(str::trim)
@@ -28,7 +51,7 @@ pub(crate) fn claude_paths() -> Result<Vec<PathBuf>> {
             return Ok(paths);
         }
         return Err(cli_error(format!(
-            "No valid Claude data directories found in CLAUDE_CONFIG_DIR. Expected each path to be a Claude config directory containing 'projects/', or the 'projects/' directory itself: {env_paths}"
+            "No valid {source_name} data directories found in {env_name}. Expected each path to be a config directory containing 'projects/', or the 'projects/' directory itself: {env_paths}"
         )));
     }
 
@@ -36,11 +59,7 @@ pub(crate) fn claude_paths() -> Result<Vec<PathBuf>> {
     let xdg = env::var("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from(&home).join(".config"));
-    for path in [
-        xdg.join("claude"),
-        home.join(".claude"),
-        home.join(".ncode"),
-    ] {
+    for path in defaults.iter().map(|path| path(&home, &xdg)) {
         if path.join("projects").is_dir() && seen.insert(path.clone()) {
             paths.push(path);
         }

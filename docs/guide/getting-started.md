@@ -45,6 +45,7 @@ Use a data source namespace when you want the same report focused on one source:
 
 ```bash
 ccusage claude daily
+ccusage ncode daily
 ccusage codex daily
 ccusage opencode weekly
 ccusage amp session
@@ -163,6 +164,7 @@ If ccusage shows no data, check:
 1. **A supported coding CLI is installed and used** - ccusage reads from local usage files
 2. **Data directory exists** - Common locations:
    - Claude Code: `~/.config/claude/projects/` or `~/.claude/projects/`
+   - NCode: `${NCODE_CONFIG_DIR:-~/.ncode}/projects/`
    - Codex: `${CODEX_HOME:-~/.codex}`
    - OpenCode: `${OPENCODE_DATA_DIR:-~/.local/share/opencode}`
    - Amp: `${AMP_DATA_DIR:-~/.local/share/amp}`
@@ -183,6 +185,7 @@ If your agent data is in a custom location, set the matching environment variabl
 
 ```bash
 export CLAUDE_CONFIG_DIR="/path/to/your/claude/data"
+export NCODE_CONFIG_DIR="/path/to/ncode"
 export CODEX_HOME="/path/to/codex"
 export OPENCODE_DATA_DIR="/path/to/opencode"
 export AMP_DATA_DIR="/path/to/amp"
@@ -202,6 +205,7 @@ Each source-specific path variable can also contain comma-separated directories:
 
 ```bash
 export CODEX_HOME="/path/to/codex,/archive/codex,/path/to/codex-exec-jsonl"
+export NCODE_CONFIG_DIR="/path/to/ncode,/archive/ncode"
 export OPENCODE_DATA_DIR="/path/to/opencode,/archive/opencode"
 export AMP_DATA_DIR="/path/to/amp,/archive/amp"
 export DROID_SESSIONS_DIR="/path/to/factory/sessions,/archive/factory/sessions"

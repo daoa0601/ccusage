@@ -50,6 +50,7 @@ ccusage daily --mode display --timezone UTC
 
 ```bash
 export CODEX_HOME="$HOME/.codex"
+export NCODE_CONFIG_DIR="$HOME/.ncode"
 export GEMINI_DATA_DIR="$HOME/.gemini/tmp"
 export OPENCODE_DATA_DIR="$HOME/.local/share/opencode"
 export AMP_DATA_DIR="$HOME/.local/share/amp"
@@ -62,6 +63,7 @@ Use comma-separated directories when you want reports to combine multiple profil
 
 ```bash
 export CODEX_HOME="$HOME/.codex,$HOME/.codex-work"
+export NCODE_CONFIG_DIR="$HOME/.ncode,/archive/ncode"
 export GEMINI_DATA_DIR="$HOME/.gemini/tmp,/backup/gemini/tmp"
 export OPENCODE_DATA_DIR="$HOME/.local/share/opencode,/archive/opencode"
 export KILO_DATA_DIR="$HOME/.local/share/kilo,/backup/kilo"
@@ -109,7 +111,7 @@ For individual developers working on multiple projects:
 
 ### Multiple Sources
 
-Configure Claude Code, Codex, OpenCode, Amp, Droid, Codebuff, Hermes Agent, pi-agent, Goose, OpenClaw, Kilo, Kimi, Qwen, GitHub Copilot CLI, and Gemini CLI separately with data source namespaces:
+Configure Claude Code, NCode, Codex, OpenCode, Amp, Droid, Codebuff, Hermes Agent, pi-agent, Goose, OpenClaw, Kilo, Kimi, Qwen, GitHub Copilot CLI, and Gemini CLI separately with data source namespaces:
 
 ```json
 // ~/.config/claude/ccusage.json
@@ -122,6 +124,13 @@ Configure Claude Code, Codex, OpenCode, Amp, Droid, Codebuff, Hermes Agent, pi-a
 		"commands": {
 			"daily": {
 				"instances": true
+			}
+		}
+	},
+	"ncode": {
+		"commands": {
+			"daily": {
+				"json": true
 			}
 		}
 	},

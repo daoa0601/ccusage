@@ -234,6 +234,7 @@ fn is_agent_command(command: &str) -> bool {
     matches!(
         command,
         "claude"
+            | "ncode"
             | "codex"
             | "opencode"
             | "amp"

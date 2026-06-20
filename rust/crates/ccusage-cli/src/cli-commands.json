@@ -44,6 +44,10 @@
 				"description": "Show Claude Code usage commands"
 			},
 			{
+				"name": "ncode",
+				"description": "Show NCode token usage commands"
+			},
+			{
 				"name": "codex",
 				"description": "Show Codex token usage commands"
 			},
@@ -210,6 +214,43 @@
 			"description": "Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)",
 			"usage": "ccusage claude statusline <OPTIONS>",
 			"options": "statusline_options"
+		},
+		{
+			"path": ["ncode"],
+			"description": "Usage reports for ncode.",
+			"usage": "ccusage ncode <COMMANDS>",
+			"commands": [
+				{
+					"name": "daily",
+					"description": "Show NCode token usage grouped by day"
+				},
+				{
+					"name": "monthly",
+					"description": "Show NCode token usage grouped by month"
+				},
+				{
+					"name": "session",
+					"description": "Show NCode token usage grouped by session"
+				}
+			]
+		},
+		{
+			"path": ["ncode", "daily"],
+			"description": "Show NCode token usage grouped by day",
+			"usage": "ccusage ncode daily <OPTIONS>",
+			"options": "agent_options"
+		},
+		{
+			"path": ["ncode", "monthly"],
+			"description": "Show NCode token usage grouped by month",
+			"usage": "ccusage ncode monthly <OPTIONS>",
+			"options": "agent_options"
+		},
+		{
+			"path": ["ncode", "session"],
+			"description": "Show NCode token usage grouped by session",
+			"usage": "ccusage ncode session <OPTIONS>",
+			"options": "agent_options"
 		},
 		{
 			"path": ["codex"],

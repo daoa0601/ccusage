@@ -30,12 +30,23 @@ pub(crate) use paths::{
     extract_session_parts, usage_files,
 };
 
+type PathLoader = fn() -> Result<Vec<PathBuf>>;
+
 pub(crate) fn load_entries(
     shared: &SharedArgs,
     project_filter: Option<&str>,
 ) -> Result<Vec<LoadedEntry>> {
     progress::track_usage_load(progress::UsageLoadAgent::Claude, shared.json, || {
-        load_entries_inner(shared, project_filter)
+        load_entries_inner(shared, project_filter, "Claude", paths::claude_paths)
+    })
+}
+
+pub(crate) fn load_ncode_entries(
+    shared: &SharedArgs,
+    project_filter: Option<&str>,
+) -> Result<Vec<LoadedEntry>> {
+    progress::track_usage_load(progress::UsageLoadAgent::NCode, shared.json, || {
+        load_entries_inner(shared, project_filter, "NCode", paths::ncode_paths)
     })
 }
 
@@ -45,19 +56,41 @@ pub(crate) fn load_daily_summaries(
     group_by_project: bool,
 ) -> Result<Vec<UsageSummary>> {
     progress::track_usage_load(progress::UsageLoadAgent::Claude, shared.json, || {
-        daily::load_daily_summaries_inner(shared, project_filter, group_by_project)
+        daily::load_daily_summaries_inner(
+            shared,
+            project_filter,
+            group_by_project,
+            paths::claude_paths,
+        )
+    })
+}
+
+pub(crate) fn load_ncode_daily_summaries(
+    shared: &SharedArgs,
+    project_filter: Option<&str>,
+    group_by_project: bool,
+) -> Result<Vec<UsageSummary>> {
+    progress::track_usage_load(progress::UsageLoadAgent::NCode, shared.json, || {
+        daily::load_daily_summaries_inner(
+            shared,
+            project_filter,
+            group_by_project,
+            paths::ncode_paths,
+        )
     })
 }
 
 fn load_entries_inner(
     shared: &SharedArgs,
     project_filter: Option<&str>,
+    source_name: &str,
+    paths: PathLoader,
 ) -> Result<Vec<LoadedEntry>> {
-    let paths = claude_paths()?;
+    let paths = paths()?;
     debug_log(
         shared,
         format!(
-            "Scanning Claude data directories: {}",
+            "Scanning {source_name} data directories: {}",
             paths
                 .iter()
                 .map(|path| path.display().to_string())

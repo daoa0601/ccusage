@@ -15,6 +15,7 @@ pub enum Command {
     Statusline(StatuslineArgs),
     Mcp(McpArgs),
     Codex(AgentCommandArgs),
+    NCode(AgentCommandArgs),
     OpenCode(AgentCommandArgs),
     Amp(AgentCommandArgs),
     Droid(AgentCommandArgs),

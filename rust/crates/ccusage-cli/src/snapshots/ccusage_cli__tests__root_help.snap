@@ -1,6 +1,6 @@
 ---
 source: crates/ccusage-cli/src/tests.rs
-assertion_line: 504
+assertion_line: 599
 expression: help_text()
 ---
 USAGE:
@@ -16,6 +16,7 @@ COMMANDS:
   statusline                 Display compact status line for Claude Code hooks with hybrid time+file caching (Beta)
   mcp                        Start MCP server with usage reporting tools
   claude                     Show Claude Code usage commands
+  ncode                      Show NCode token usage commands
   codex                      Show Codex token usage commands
   opencode                   Show OpenCode token usage commands
   amp                        Show Amp token usage commands
@@ -40,6 +41,7 @@ For more info, run any command with the `--help` flag:
   ccusage statusline --help
   ccusage mcp --help
   ccusage claude --help
+  ccusage ncode --help
   ccusage codex --help
   ccusage opencode --help
   ccusage amp --help
